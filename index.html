@@ -1404,6 +1404,8 @@ function generateEmail(){
   const alt      =v('maxAlt')        ||'400';
   const tFrom    =v('timeFrom')      ||'TBD';
   const tTo      =v('timeTo')        ||'TBD';
+  const tzOff    = window._tzOffset || 0;
+  const tzLabel  = tzOff ? `EEST (UTC+${tzOff})` : 'UTC';
 
   const dateStr=dateVal
     ?new Date(dateVal+'T12:00:00').toLocaleDateString('en-GB',{
@@ -1458,7 +1460,7 @@ UAS
 
 OPERATION
   Date:            ${dateStr}
-  Window:          ${tFrom} - ${tTo} UTC
+  Window:          ${tFrom} - ${tTo} ${tzLabel}
   Max altitude:    ${alt} ft AGL (VLOS)
 
 SECTORS (grid ref | bounding coordinates)
@@ -2361,6 +2363,7 @@ window.toggleTz = function(){
     if (f.cells && window.restoreCells) window.restoreCells(f.cells);
     // Track which flight is being edited so submit updates instead of duplicates
     window._editingFlightId = String(f.id);
+    window._lastFlightId    = String(f.id);  // so email/share URL uses this flight's link
     // Update schedule button to indicate edit mode
     const btn = document.getElementById('scheduleBtn');
     if (btn) btn.textContent = '💾 Update flight';
