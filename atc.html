@@ -245,6 +245,25 @@
     ::-webkit-scrollbar-track { background: transparent; }
     ::-webkit-scrollbar-thumb { background: #30363d; border-radius: 3px; }
 
+    /* ── Login screen ── */
+    #loginScreen {
+      position: fixed; inset: 0; background: var(--bg); z-index: 99999;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .ls-box { background: var(--panel); border: 1px solid var(--border); border-radius: 14px; padding: 36px 40px; width: 320px; max-width: 92vw; text-align: center; }
+    .ls-logo  { font-size: 30px; margin-bottom: 10px; }
+    .ls-title { font-size: 15px; font-weight: 700; color: var(--accent); margin-bottom: 4px; }
+    .ls-sub   { font-size: 11px; color: var(--muted); margin-bottom: 22px; }
+    .ls-roles { display: flex; gap: 8px; margin-bottom: 18px; }
+    .ls-role  { flex: 1; padding: 9px 0; border-radius: 6px; font-size: 11.5px; font-weight: 700; cursor: pointer; font-family: inherit; transition: all .15s; border: 1px solid var(--border); background: transparent; color: var(--muted); }
+    .ls-role.active { border-color: var(--accent); border-width: 2px; background: rgba(88,166,255,.1); color: var(--accent); }
+    .ls-input { width: 100%; padding: 9px 12px; background: var(--bg); border: 1px solid var(--border); border-radius: 6px; color: var(--text); font-size: 13px; font-family: inherit; text-align: center; letter-spacing: .1em; margin-bottom: 10px; }
+    .ls-input:focus { outline: none; border-color: var(--accent); }
+    .ls-submit { width: 100%; padding: 10px 0; background: var(--accent); border: none; border-radius: 6px; color: #000; font-size: 13px; font-weight: 700; cursor: pointer; font-family: inherit; margin-bottom: 8px; }
+    .ls-submit:hover { opacity: .88; }
+    .ls-submit:disabled { opacity: .5; cursor: not-allowed; }
+    .ls-err { font-size: 11px; color: var(--red); min-height: 16px; }
+
     /* ── Responsive ── */
     @media (max-width: 820px) {
       #layout { flex-direction: column-reverse; }
@@ -267,6 +286,10 @@
   <span class="hdr-sub">Karpathos UAS Operations</span>
   <a id="hdr-pilot-link" href="index.html">← Pilot tool</a>
   <span id="hdr-clock"></span>
+  <!-- Auth badge + admin + logout (hidden until logged in) -->
+  <span id="authBadge" style="display:none;font-size:10px;padding:3px 9px;border-radius:10px;background:rgba(88,166,255,.1);border:1px solid var(--border);color:var(--muted);white-space:nowrap;"></span>
+  <button id="adminBtn" onclick="openAdmin()" style="display:none;padding:4px 9px;background:transparent;border:1px solid var(--border);border-radius:4px;color:var(--muted);font-size:10px;cursor:pointer;font-family:inherit;" title="Last logins">📋 Logins</button>
+  <button id="logoutBtn" onclick="doLogout()" style="display:none;padding:4px 9px;background:transparent;border:1px solid var(--border);border-radius:4px;color:var(--muted);font-size:10px;cursor:pointer;font-family:inherit;">Logout</button>
 </header>
 
 <div id="layout">
@@ -373,9 +396,7 @@
 </div>
 
 <!-- Leaflet JS with 3-CDN fallback -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"
-        integrity="sha512-BwHfrr4c9kmRkLw6iXFdzcdWV/PGkVgiIyIWLLlTSXzWQzxuSg4DiQUCpauz/EWjgk5TYQqX/kvn9pG1NpYfqg=="
-        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
 <script>
 if (!window.L) {
   const s = document.createElement('script');
@@ -413,8 +434,8 @@ waitForLeaflet(function() {
 
   // ── Map init ────────────────────────────────────────
   const map = L.map('map', { zoomControl: true, zoomSnap: 0.25, zoomDelta: 0.5 });
-  const osmTile = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
-    { attribution: '© OpenStreetMap', maxZoom: 19 });
+  const osmTile = L.tileLayer('/tiles/{z}/{x}/{y}.png',
+    { attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors', maxZoom: 19 });
   const satTile = L.tileLayer(
     'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
     { attribution: '© Esri', maxZoom: 19 });
@@ -426,6 +447,12 @@ waitForLeaflet(function() {
   const COLS = Math.ceil((B.east  - B.west)  / DX);   // 13
   const ROWS = Math.ceil((B.north - B.south) / DY);   // 29
   const colLetter = i => String.fromCharCode(65 + i);
+
+  // Same CTR zones as pilot tool (explicit set for exact match)
+  const CTR_ZONES = new Set([
+    'F27','G27','H27','I27','E28','F28','G28','H28','I28','E29','F29','G29','H29',
+    'F25','G25','H25','E26','F26','G26','H26','I26','C22','D22','C23','D23',
+  ]);
 
   // ── Airspace polygons (same as index.html) ──────────
   const CTR_POLY  = [[35.42164,27.45083],[35.47072,27.44489],[35.51789,27.42732],[35.56134,27.39878],[35.5994,27.36037],[35.63063,27.31357],[35.65382,27.26018],[35.6681,27.20224],[35.67292,27.14199],[35.6681,27.08174],[35.65382,27.0238],[35.63063,26.97041],[35.5994,26.92361],[35.56134,26.8852],[35.51789,26.85666],[35.47072,26.83909],[35.42164,26.83315],[35.37253,26.83909],[35.32527,26.85666],[35.28169,26.8852],[35.24348,26.92361],[35.21211,26.97041],[35.18879,27.0238],[35.17442,27.08174],[35.16957,27.14199],[35.17442,27.20224],[35.18879,27.26018],[35.21211,27.31357],[35.24348,27.36037],[35.28169,27.39878],[35.32527,27.42732],[35.37253,27.44489],[35.42164,27.45083]];
@@ -443,20 +470,19 @@ waitForLeaflet(function() {
     return inside;
   }
 
-  // ── Cell styles ─────────────────────────────────────
-  const S_NORM  = { color:'#2d4a6e', weight:.6, fillColor:'#1a3a5c', fillOpacity:.12, opacity:.5 };
+  // ── Cell styles (matching pilot tool) ───────────────
+  const S_NORM  = { color:'#3d9cf0', weight:.8, fillColor:'#3d9cf0', fillOpacity:.07, opacity:.4 };
   const S_CTR   = { color:'#1a7fd4', weight:.8, fillColor:'#1a7fd4', fillOpacity:.05, opacity:.4 };
-  const S_HILIT = { color:'#58a6ff', weight:2.5, fillColor:'#1a7fd4', fillOpacity:.5, opacity:1 };
+  const S_HILIT = { color:'#ff9010', weight:2.5, fillColor:'#ff8c00', fillOpacity:.45, opacity:1 };
 
-  // ── Draw grid (read-only, no interactions) ──────────
+  // ── Draw grid (read-only) ────────────────────────────
   const gridRects = {};
 
   for (let r=0; r<ROWS; r++) {
     for (let c=2; c<COLS-2; c++) {
       const id  = colLetter(c-2) + (r+1);
       const s   = B.south + r*DY,  w = B.west + c*DX;
-      const lat = s + DY/2,         lon = w + DX/2;
-      const isCTR = pip(CTR_POLY,lat,lon) || pip(ATZ_POLY,lat,lon);
+      const isCTR = CTR_ZONES.has(id);
       const rect = L.rectangle([[s,w],[s+DY,w+DX]], isCTR ? {...S_CTR} : {...S_NORM});
       rect._isCTR = isCTR;
       rect.addTo(map);
@@ -539,9 +565,9 @@ waitForLeaflet(function() {
 
   // ── Filter state ─────────────────────────────────────
   const dateEl = document.getElementById('date-filter');
-  dateEl.value = new Date().toISOString().slice(0,10);
+  dateEl.value = '';          // empty = show all dates by default
   let filterStatus = 'all';
-  let filterDate   = dateEl.value;
+  let filterDate   = '';
   let activeId     = null; // currently highlighted flight id
 
   // ── Render flight list ───────────────────────────────
@@ -863,6 +889,156 @@ waitForLeaflet(function() {
   renderFlights();
 
 }); // waitForLeaflet
+</script>
+
+<!-- ─────── LOGIN SCREEN ─────── -->
+<div id="loginScreen">
+  <div class="ls-box">
+    <div class="ls-logo">✈</div>
+    <div class="ls-title">Karpathos AFIS</div>
+    <div class="ls-sub">UAS Operations Dashboard</div>
+    <div class="ls-roles">
+      <button class="ls-role" id="lsRolePilot" onclick="lsSelectRole('pilot')">🚁 Drone Pilot</button>
+      <button class="ls-role active" id="lsRoleAtc" onclick="lsSelectRole('atc')">🗼 ATC / AFIS</button>
+    </div>
+    <input type="password" id="lsCode" class="ls-input" placeholder="Access code…"
+      inputmode="numeric" pattern="[0-9]*"
+      onkeydown="if(event.key==='Enter')lsLogin()"/>
+    <div id="lsErr" class="ls-err"></div>
+    <button class="ls-submit" id="lsSubmit" onclick="lsLogin()">Login →</button>
+  </div>
+</div>
+
+<!-- ─────── LAST LOGINS MODAL (ATC view — read only) ─────── -->
+<div id="adminModal" style="position:fixed;inset:0;background:rgba(0,0,0,.75);display:none;align-items:center;justify-content:center;z-index:5000;">
+  <div class="modal-box" style="width:340px;">
+    <div class="modal-title">
+      <span>📋 Last Logins</span>
+      <button class="modal-close" onclick="closeAdmin()">✕</button>
+    </div>
+    <div id="adminLogins" style="background:var(--bg);border-radius:6px;padding:10px 13px;font-size:11px;line-height:2;">
+      <span style="color:var(--muted);">Loading…</span>
+    </div>
+    <p style="font-size:10px;color:var(--muted);margin-top:10px;line-height:1.5;">Code management is available in the pilot tool (index.html).</p>
+  </div>
+</div>
+
+<script>
+// ── Auth ──────────────────────────────────────────────────────────────────
+(function(){
+  let _role = 'atc'; // default for ATC page
+
+  window.lsSelectRole = function(role){
+    _role = role;
+    document.getElementById('lsRolePilot').classList.toggle('active', role==='pilot');
+    document.getElementById('lsRoleAtc').classList.toggle('active',   role==='atc');
+  };
+
+  window.lsLogin = async function(){
+    const code = document.getElementById('lsCode').value.trim();
+    const err  = document.getElementById('lsErr');
+    const btn  = document.getElementById('lsSubmit');
+    err.textContent = '';
+    if (!code){ err.textContent = 'Enter an access code'; return; }
+    btn.textContent = '…'; btn.disabled = true;
+    try {
+      const res  = await fetch('/api/auth', {
+        method: 'POST',
+        headers: {'Content-Type':'application/json'},
+        body: JSON.stringify({code, role: _role}),
+      });
+      const data = await res.json();
+      if (!res.ok){ err.textContent = data.error || 'Invalid code'; return; }
+      localStorage.setItem('uas-token', data.token);
+      localStorage.setItem('uas-role',  data.role);
+      _onAuth(data.role);
+    } catch(e){ err.textContent = 'Server unreachable'; }
+    finally { btn.textContent = 'Login →'; btn.disabled = false; }
+  };
+
+  function _onAuth(role){
+    document.getElementById('loginScreen').style.display = 'none';
+    const badge = document.getElementById('authBadge');
+    const logB  = document.getElementById('logoutBtn');
+    const admB  = document.getElementById('adminBtn');
+    if (badge){
+      badge.textContent = role === 'pilot' ? '🚁 Pilot' : '🗼 ATC';
+      badge.style.display = 'inline-block';
+    }
+    if (logB) logB.style.display = 'inline-block';
+    // Only ATC gets the last-logins button
+    if (admB && role === 'atc') admB.style.display = 'inline-block';
+  }
+
+  window.doLogout = function(){
+    localStorage.removeItem('uas-token');
+    localStorage.removeItem('uas-role');
+    location.reload();
+  };
+
+  window.getToken = function(){ return localStorage.getItem('uas-token') || ''; };
+
+  // Check existing token on load
+  (async function(){
+    const token = localStorage.getItem('uas-token');
+    const role  = localStorage.getItem('uas-role');
+    if (!token) return;
+    try {
+      const res = await fetch('/api/verify', { headers:{'Authorization':'Bearer '+token} });
+      if (res.ok){
+        const d = await res.json();
+        if (d.role) lsSelectRole(d.role);
+        _onAuth(d.role);
+      } else {
+        localStorage.removeItem('uas-token');
+        localStorage.removeItem('uas-role');
+      }
+    } catch(e){
+      if (role && role === 'atc') _onAuth(role);
+    }
+  })();
+})();
+
+// ── Last logins popup (ATC — read only) ───────────────────────────────────
+function timeSince(iso){
+  if (!iso) return 'Never';
+  const mins = Math.floor((Date.now() - new Date(iso)) / 60000);
+  if (mins < 1)  return 'Just now';
+  if (mins < 60) return `${mins} min ago`;
+  const hrs = Math.floor(mins / 60);
+  if (hrs < 24)  return `${hrs} hr ago`;
+  return `${Math.floor(hrs/24)} day(s) ago`;
+}
+
+window.openAdmin = async function(){
+  document.getElementById('adminModal').style.display = 'flex';
+  const box = document.getElementById('adminLogins');
+  try {
+    const r = await fetch('/api/admin/last-logins', { headers:{'Authorization':'Bearer '+getToken()} });
+    if (!r.ok) {
+      box.innerHTML = '<div style="color:var(--muted)">Could not load — please log in first.</div>';
+      return;
+    }
+    const { lastLogins } = await r.json();
+    const pilotLogin = lastLogins.pilot;
+    const atcLogin   = lastLogins.atc;
+    box.innerHTML =
+      `<div>🚁 <strong>Pilot</strong> — ${timeSince(pilotLogin?.time)}</div>`+
+      (pilotLogin ? `<div style="font-size:10px;color:var(--muted);padding-left:16px;">${new Date(pilotLogin.time).toLocaleString()} · IP ${pilotLogin.ip}</div>` : '')+
+      `<div style="margin-top:6px;">🗼 <strong>ATC</strong> — ${timeSince(atcLogin?.time)}</div>`+
+      (atcLogin ? `<div style="font-size:10px;color:var(--muted);padding-left:16px;">${new Date(atcLogin.time).toLocaleString()} · IP ${atcLogin.ip}</div>` : '');
+  } catch(e){
+    box.innerHTML = '<div style="color:var(--muted)">Error loading logins.</div>';
+  }
+};
+
+window.closeAdmin = function(){
+  document.getElementById('adminModal').style.display = 'none';
+};
+
+document.getElementById('adminModal').addEventListener('click', e => {
+  if (e.target === document.getElementById('adminModal')) closeAdmin();
+});
 </script>
 </body>
 </html>

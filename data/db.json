@@ -1,0 +1,45 @@
+{
+  "nextId": 5,
+  "codes": [
+    {
+      "id": 1,
+      "code": "1234",
+      "role": "pilot",
+      "label": "Default pilot code",
+      "active": true,
+      "created": "2026-07-13T20:51:49.756Z"
+    },
+    {
+      "id": 2,
+      "code": "5678",
+      "role": "atc",
+      "label": "Default ATC code",
+      "active": true,
+      "created": "2026-07-13T20:51:49.757Z"
+    },
+    {
+      "id": 3,
+      "code": "1106",
+      "role": "pilot",
+      "label": "",
+      "active": true,
+      "created": "2026-07-13T20:54:11.407Z"
+    },
+    {
+      "id": 4,
+      "code": "2026",
+      "role": "atc",
+      "label": "",
+      "active": true,
+      "created": "2026-07-13T20:54:26.385Z"
+    }
+  ],
+  "lastLogins": {
+    "pilot": {
+      "codeId": 1,
+      "time": "2026-07-13T20:53:19.140Z",
+      "ip": "::1"
+    },
+    "atc": null
+  }
+}

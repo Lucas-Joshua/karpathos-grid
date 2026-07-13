@@ -7,7 +7,7 @@
 //    Other      → network-first, fall back to cache
 // ════════════════════════════════════════════════════
 
-const CACHE_NAME = 'uas-grid-v2';
+const CACHE_NAME = 'uas-grid-v3';
 
 const APP_SHELL = [
   './',
@@ -46,7 +46,9 @@ self.addEventListener('fetch', event => {
   // Only handle GET requests
   if (req.method !== 'GET') return;
 
+  // Tiles now served from same-origin /tiles/ proxy — match by path
   const isTile =
+    (url.origin === self.location.origin && url.pathname.startsWith('/tiles/')) ||
     url.hostname.includes('tile.openstreetmap.org') ||
     url.hostname.includes('arcgisonline.com');
 
