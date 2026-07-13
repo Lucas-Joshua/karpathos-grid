@@ -1,0 +1,868 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <title>AFIS — Karpathos UAS Operaties</title>
+
+  <!-- Leaflet CSS inline (same as index.html) -->
+  <style>.leaflet-image-layer,.leaflet-layer,.leaflet-marker-icon,.leaflet-marker-shadow,.leaflet-pane,.leaflet-pane>canvas,.leaflet-pane>svg,.leaflet-tile,.leaflet-tile-container,.leaflet-zoom-box{position:absolute;left:0;top:0}.leaflet-container{overflow:hidden}.leaflet-marker-icon,.leaflet-marker-shadow,.leaflet-tile{-webkit-user-select:none;-moz-user-select:none;user-select:none;-webkit-user-drag:none}.leaflet-tile::selection{background:0 0}.leaflet-safari .leaflet-tile{image-rendering:-webkit-optimize-contrast}.leaflet-safari .leaflet-tile-container{width:1600px;height:1600px;-webkit-transform-origin:0 0}.leaflet-marker-icon,.leaflet-marker-shadow{display:block}.leaflet-container .leaflet-overlay-pane svg{max-width:none!important;max-height:none!important}.leaflet-container .leaflet-marker-pane img,.leaflet-container .leaflet-shadow-pane img,.leaflet-container .leaflet-tile,.leaflet-container .leaflet-tile-pane img,.leaflet-container img.leaflet-image-layer{max-width:none!important;max-height:none!important;width:auto;padding:0}.leaflet-container img.leaflet-tile{mix-blend-mode:plus-lighter}.leaflet-container.leaflet-touch-zoom{-ms-touch-action:pan-x pan-y;touch-action:pan-x pan-y}.leaflet-container.leaflet-touch-drag{-ms-touch-action:pinch-zoom;touch-action:none;touch-action:pinch-zoom}.leaflet-container.leaflet-touch-drag.leaflet-touch-zoom{-ms-touch-action:none;touch-action:none}.leaflet-container{-webkit-tap-highlight-color:transparent}.leaflet-container a{-webkit-tap-highlight-color:rgba(51,181,229,.4)}.leaflet-tile{filter:inherit;visibility:hidden}.leaflet-tile-loaded{visibility:inherit}.leaflet-zoom-box{width:0;height:0;-moz-box-sizing:border-box;box-sizing:border-box;z-index:800}.leaflet-overlay-pane svg{-moz-user-select:none}.leaflet-pane{z-index:400}.leaflet-tile-pane{z-index:200}.leaflet-overlay-pane{z-index:400}.leaflet-shadow-pane{z-index:500}.leaflet-marker-pane{z-index:600}.leaflet-tooltip-pane{z-index:650}.leaflet-popup-pane{z-index:700}.leaflet-map-pane canvas{z-index:100}.leaflet-map-pane svg{z-index:200}.leaflet-vml-shape{width:1px;height:1px}.lvml{behavior:url(#default#VML);display:inline-block;position:absolute}.leaflet-control{position:relative;z-index:800;pointer-events:visiblePainted;pointer-events:auto}.leaflet-bottom,.leaflet-top{position:absolute;z-index:1000;pointer-events:none}.leaflet-top{top:0}.leaflet-right{right:0}.leaflet-bottom{bottom:0}.leaflet-left{left:0}.leaflet-control{float:left;clear:both}.leaflet-right .leaflet-control{float:right}.leaflet-top .leaflet-control{margin-top:10px}.leaflet-bottom .leaflet-control{margin-bottom:10px}.leaflet-left .leaflet-control{margin-left:10px}.leaflet-right .leaflet-control{margin-right:10px}.leaflet-fade-anim .leaflet-popup{opacity:0;-webkit-transition:opacity .2s linear;-moz-transition:opacity .2s linear;transition:opacity .2s linear}.leaflet-fade-anim .leaflet-map-pane .leaflet-popup{opacity:1}.leaflet-zoom-animated{-webkit-transform-origin:0 0;-ms-transform-origin:0 0;transform-origin:0 0}svg.leaflet-zoom-animated{will-change:transform}.leaflet-zoom-anim .leaflet-zoom-animated{-webkit-transition:-webkit-transform .25s cubic-bezier(0,0,.25,1);-moz-transition:-moz-transform .25s cubic-bezier(0,0,.25,1);transition:transform .25s cubic-bezier(0,0,.25,1)}.leaflet-pan-anim .leaflet-tile,.leaflet-zoom-anim .leaflet-tile{-webkit-transition:none;-moz-transition:none;transition:none}.leaflet-zoom-anim .leaflet-zoom-hide{visibility:hidden}.leaflet-interactive{cursor:pointer}.leaflet-grab{cursor:-webkit-grab;cursor:-moz-grab;cursor:grab}.leaflet-crosshair,.leaflet-crosshair .leaflet-interactive{cursor:crosshair}.leaflet-control,.leaflet-popup-pane{cursor:auto}.leaflet-dragging .leaflet-grab,.leaflet-dragging .leaflet-grab .leaflet-interactive,.leaflet-dragging .leaflet-marker-draggable{cursor:move;cursor:-webkit-grabbing;cursor:-moz-grabbing;cursor:grabbing}.leaflet-image-layer,.leaflet-marker-icon,.leaflet-marker-shadow,.leaflet-pane>svg path,.leaflet-tile-container{pointer-events:none}.leaflet-image-layer.leaflet-interactive,.leaflet-marker-icon.leaflet-interactive,.leaflet-pane>svg path.leaflet-interactive,svg.leaflet-image-layer.leaflet-interactive path{pointer-events:visiblePainted;pointer-events:auto}.leaflet-container{background:#ddd;outline-offset:1px}.leaflet-container a{color:#0078a8}.leaflet-zoom-box{border:2px dotted #38f;background:rgba(255,255,255,.5)}.leaflet-container{font-family:"Helvetica Neue",Arial,Helvetica,sans-serif;font-size:12px;font-size:.75rem;line-height:1.5}.leaflet-bar{box-shadow:0 1px 5px rgba(0,0,0,.65);border-radius:4px}.leaflet-bar a{background-color:#fff;border-bottom:1px solid #ccc;width:26px;height:26px;line-height:26px;display:block;text-align:center;text-decoration:none;color:#000}.leaflet-bar a,.leaflet-control-layers-toggle{background-position:50% 50%;background-repeat:no-repeat;display:block}.leaflet-bar a:focus,.leaflet-bar a:hover{background-color:#f4f4f4}.leaflet-bar a:first-child{border-top-left-radius:4px;border-top-right-radius:4px}.leaflet-bar a:last-child{border-bottom-left-radius:4px;border-bottom-right-radius:4px;border-bottom:none}.leaflet-bar a.leaflet-disabled{cursor:default;background-color:#f4f4f4;color:#bbb}.leaflet-touch .leaflet-bar a{width:30px;height:30px;line-height:30px}.leaflet-touch .leaflet-bar a:first-child{border-top-left-radius:2px;border-top-right-radius:2px}.leaflet-touch .leaflet-bar a:last-child{border-bottom-left-radius:2px;border-bottom-right-radius:2px}.leaflet-control-zoom-in,.leaflet-control-zoom-out{font:bold 18px 'Lucida Console',Monaco,monospace;text-indent:1px}.leaflet-touch .leaflet-control-zoom-in,.leaflet-touch .leaflet-control-zoom-out{font-size:22px}.leaflet-control-layers{box-shadow:0 1px 5px rgba(0,0,0,.4);background:#fff;border-radius:5px}.leaflet-control-layers-toggle{background-image:url(images/layers.png);width:36px;height:36px}.leaflet-retina .leaflet-control-layers-toggle{background-image:url(images/layers-2x.png);background-size:26px 26px}.leaflet-touch .leaflet-control-layers-toggle{width:44px;height:44px}.leaflet-control-layers .leaflet-control-layers-list,.leaflet-control-layers-expanded .leaflet-control-layers-toggle{display:none}.leaflet-control-layers-expanded .leaflet-control-layers-list{display:block;position:relative}.leaflet-control-layers-expanded{padding:6px 10px 6px 6px;color:#333;background:#fff}.leaflet-control-layers-scrollbar{overflow-y:scroll;overflow-x:hidden;padding-right:5px}.leaflet-control-layers-selector{margin-top:2px;position:relative;top:1px}.leaflet-control-layers label{display:block;font-size:13px;font-size:1.08333em}.leaflet-control-layers-separator{height:0;border-top:1px solid #ddd;margin:5px -10px 5px -6px}.leaflet-default-icon-path{background-image:url(images/marker-icon.png)}.leaflet-container .leaflet-control-attribution{background:#fff;background:rgba(255,255,255,.8);margin:0}.leaflet-control-attribution,.leaflet-control-scale-line{padding:0 5px;color:#333;line-height:1.4}.leaflet-control-attribution a{text-decoration:none}.leaflet-control-attribution a:focus,.leaflet-control-attribution a:hover{text-decoration:underline}.leaflet-attribution-flag{display:inline!important;vertical-align:baseline!important;width:1em;height:.6669em}.leaflet-left .leaflet-control-scale{margin-left:5px}.leaflet-bottom .leaflet-control-scale{margin-bottom:5px}.leaflet-control-scale-line{border:2px solid #777;border-top:none;line-height:1.1;padding:2px 5px 1px;white-space:nowrap;-moz-box-sizing:border-box;box-sizing:border-box;background:rgba(255,255,255,.8);text-shadow:1px 1px #fff}.leaflet-control-scale-line:not(:first-child){border-top:2px solid #777;border-bottom:none;margin-top:-2px}.leaflet-control-scale-line:not(:first-child):not(:last-child){border-bottom:2px solid #777}.leaflet-touch .leaflet-bar,.leaflet-touch .leaflet-control-attribution,.leaflet-touch .leaflet-control-layers{box-shadow:none}.leaflet-touch .leaflet-bar,.leaflet-touch .leaflet-control-layers{border:2px solid rgba(0,0,0,.2);background-clip:padding-box}.leaflet-popup{position:absolute;text-align:center;margin-bottom:20px}.leaflet-popup-content-wrapper{padding:1px;text-align:left;border-radius:12px}.leaflet-popup-content{margin:13px 24px 13px 20px;line-height:1.3;font-size:13px;font-size:1.08333em;min-height:1px}.leaflet-popup-content p{margin:1.3em 0}.leaflet-popup-tip-container{width:40px;height:20px;position:absolute;left:50%;margin-top:-1px;margin-left:-20px;overflow:hidden;pointer-events:none}.leaflet-popup-tip{width:17px;height:17px;padding:1px;margin:-10px auto 0;pointer-events:auto;-webkit-transform:rotate(45deg);-moz-transform:rotate(45deg);-ms-transform:rotate(45deg);transform:rotate(45deg)}.leaflet-popup-content-wrapper,.leaflet-popup-tip{background:#fff;color:#333;box-shadow:0 3px 14px rgba(0,0,0,.4)}.leaflet-container a.leaflet-popup-close-button{position:absolute;top:0;right:0;border:none;text-align:center;width:24px;height:24px;font:16px/24px Tahoma,Verdana,sans-serif;color:#757575;text-decoration:none;background:0 0}.leaflet-container a.leaflet-popup-close-button:focus,.leaflet-container a.leaflet-popup-close-button:hover{color:#585858}.leaflet-popup-scrolled{overflow:auto}.leaflet-div-icon{background:#fff;border:1px solid #666}.leaflet-tooltip{position:absolute;padding:6px;background-color:#fff;border:1px solid #fff;border-radius:3px;color:#222;white-space:nowrap;-webkit-user-select:none;-moz-user-select:none;user-select:none;pointer-events:none;box-shadow:0 1px 3px rgba(0,0,0,.4)}.leaflet-tooltip.leaflet-interactive{cursor:pointer;pointer-events:auto}.leaflet-tooltip-bottom:before,.leaflet-tooltip-left:before,.leaflet-tooltip-right:before,.leaflet-tooltip-top:before{position:absolute;pointer-events:none;border:6px solid transparent;background:0 0;content:""}.leaflet-tooltip-bottom{margin-top:6px}.leaflet-tooltip-top{margin-top:-6px}.leaflet-tooltip-bottom:before,.leaflet-tooltip-top:before{left:50%;margin-left:-6px}.leaflet-tooltip-top:before{bottom:0;margin-bottom:-12px;border-top-color:#fff}.leaflet-tooltip-bottom:before{top:0;margin-top:-12px;margin-left:-6px;border-bottom-color:#fff}.leaflet-tooltip-left{margin-left:-6px}.leaflet-tooltip-right{margin-left:6px}.leaflet-tooltip-left:before,.leaflet-tooltip-right:before{top:50%;margin-top:-6px}.leaflet-tooltip-left:before{right:0;margin-right:-12px;border-left-color:#fff}.leaflet-tooltip-right:before{left:0;margin-left:-12px;border-right-color:#fff}</style>
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:     #0d1117;
+      --panel:  #161b22;
+      --border: #21262d;
+      --text:   #e6edf3;
+      --muted:  #8b949e;
+      --accent: #58a6ff;
+      --blue:   #1a7fd4;
+      --green:  #3fb950;
+      --yellow: #d29922;
+      --red:    #f85149;
+    }
+
+    html, body { height: 100%; font-family: 'Segoe UI', system-ui, sans-serif; background: var(--bg); color: var(--text); overflow: hidden; }
+
+    /* ── Header ── */
+    #hdr {
+      height: 46px; background: #090d12;
+      border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; padding: 0 16px; gap: 12px; flex-shrink: 0;
+    }
+    .hdr-logo { font-size: 14px; font-weight: 800; color: var(--accent); letter-spacing: .06em; }
+    .hdr-sep  { width: 1px; height: 22px; background: var(--border); }
+    .hdr-sub  { font-size: 11px; color: var(--muted); }
+    #hdr-pilot-link {
+      margin-left: auto; font-size: 11px; color: var(--muted);
+      text-decoration: none; border: 1px solid var(--border);
+      border-radius: 4px; padding: 3px 9px;
+      transition: border-color .15s, color .15s;
+    }
+    #hdr-pilot-link:hover { border-color: var(--accent); color: var(--accent); }
+    #hdr-clock { font-size: 12px; color: var(--muted); font-variant-numeric: tabular-nums; margin-left: 12px; }
+
+    /* ── Layout ── */
+    #layout { display: flex; height: calc(100vh - 46px); }
+
+    /* ── Sidebar ── */
+    #sidebar {
+      width: 330px; flex-shrink: 0;
+      background: var(--panel); border-right: 1px solid var(--border);
+      display: flex; flex-direction: column; overflow: hidden;
+    }
+
+    /* Filter bar */
+    #filter-bar { padding: 10px 12px; border-bottom: 1px solid var(--border); display: flex; flex-direction: column; gap: 7px; }
+    .filter-date {
+      width: 100%; background: var(--bg); border: 1px solid var(--border);
+      border-radius: 5px; color: var(--text); padding: 5px 8px; font-size: 12px;
+    }
+    .filter-date:focus { outline: none; border-color: var(--accent); }
+    .status-pills { display: flex; gap: 4px; }
+    .pill {
+      flex: 1; text-align: center; padding: 4px 0; border-radius: 12px;
+      font-size: 10px; font-weight: 700; letter-spacing: .03em;
+      cursor: pointer; border: 1px solid var(--border); color: var(--muted);
+      background: transparent; transition: all .15s;
+    }
+    .pill.active            { border-color: var(--accent); color: var(--accent); background: rgba(88,166,255,.1); }
+    .pill.p-pending.active  { border-color: var(--yellow); color: var(--yellow); background: rgba(210,153,34,.1); }
+    .pill.p-cleared.active  { border-color: var(--green);  color: var(--green);  background: rgba(63,185,80,.1); }
+    .pill.p-denied.active   { border-color: var(--red);    color: var(--red);    background: rgba(248,81,73,.1); }
+
+    /* Flight list */
+    #flight-list { flex: 1; overflow-y: auto; padding: 8px; }
+
+    /* Flight card */
+    .fcard {
+      background: var(--bg); border: 1px solid var(--border);
+      border-radius: 7px; padding: 10px 11px; margin-bottom: 7px;
+      cursor: pointer; transition: border-color .15s;
+    }
+    .fcard:hover   { border-color: #444c56; }
+    .fcard.active  { border-color: var(--accent); background: #0a1018; }
+
+    .fcard-head {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 5px;
+    }
+    .fcard-status { display: flex; align-items: center; font-size: 10px; font-weight: 700; letter-spacing: .05em; }
+    .fcard-status.pending { color: var(--yellow); }
+    .fcard-status.cleared { color: var(--green); }
+    .fcard-status.denied  { color: var(--red); }
+    .status-dot { width: 7px; height: 7px; border-radius: 50%; margin-right: 5px; flex-shrink: 0; }
+    .status-dot.pending { background: var(--yellow); }
+    .status-dot.cleared { background: var(--green); box-shadow: 0 0 5px rgba(63,185,80,.6); }
+    .status-dot.denied  { background: var(--red); }
+    .fcard-date { font-size: 10px; color: var(--muted); }
+
+    .fcard-time { font-size: 17px; font-weight: 700; font-variant-numeric: tabular-nums; margin-bottom: 3px; }
+    .fcard-pilot { font-size: 11px; color: var(--muted); margin-bottom: 7px; }
+    .fcard-pilot strong { color: var(--text); }
+
+    .fcard-body { display: flex; gap: 9px; align-items: flex-start; }
+    .fcard-mini { flex-shrink: 0; border-radius: 3px; overflow: hidden; border: 1px solid var(--border); }
+    .fcard-info { flex: 1; min-width: 0; }
+    .fcard-cells { font-size: 10px; color: var(--muted); margin-bottom: 3px; word-break: break-all; }
+    .fcard-cells strong { color: var(--accent); }
+    .fcard-notes  { font-size: 10px; color: var(--muted); font-style: italic; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .fcard-afis   { font-size: 10px; color: #88c8ff; margin-top: 2px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+    .fcard-actions { display: flex; gap: 5px; margin-top: 9px; }
+    .btn-sm {
+      flex: 1; padding: 4px 0; border-radius: 4px; font-size: 10px; font-weight: 700;
+      cursor: pointer; border: 1px solid; transition: opacity .15s;
+    }
+    .btn-sm:hover { opacity: .75; }
+    .btn-clear { background: rgba(63,185,80,.12); border-color: var(--green); color: var(--green); }
+    .btn-deny  { background: rgba(248,81,73,.12); border-color: var(--red);   color: var(--red);   }
+    .btn-edit  { background: rgba(88,166,255,.08); border-color: var(--accent); color: var(--accent); }
+
+    /* Add button */
+    #add-btn {
+      margin: 10px 12px 12px; padding: 9px 0;
+      background: rgba(88,166,255,.1); border: 1px solid var(--accent);
+      border-radius: 5px; color: var(--accent); font-size: 12px; font-weight: 700;
+      cursor: pointer; width: calc(100% - 24px); transition: background .15s;
+    }
+    #add-btn:hover { background: rgba(88,166,255,.2); }
+
+    /* Map */
+    #map { flex: 1; }
+
+    /* Leaflet overrides */
+    .leaflet-control-layers { background: var(--panel) !important; border: 1px solid var(--border) !important; color: var(--text) !important; }
+    .leaflet-control-layers label { color: var(--text) !important; font-size: 11px !important; }
+    .leaflet-bar a { background: var(--panel) !important; color: var(--text) !important; border-color: var(--border) !important; }
+    .leaflet-bar a:hover { background: var(--bg) !important; }
+    .leaflet-control-attribution { background: rgba(9,13,18,.85) !important; color: var(--muted) !important; font-size: 9px !important; }
+    .leaflet-control-attribution a { color: var(--accent) !important; }
+    .ctip { background: #0d1520 !important; border: 1px solid var(--blue) !important; color: var(--text) !important; font-size: 11px !important; border-radius: 4px !important; padding: 4px 8px !important; }
+    .ctip::before { display: none !important; }
+
+    /* ── Modal ── */
+    #modal {
+      position: fixed; inset: 0; background: rgba(0,0,0,.75);
+      display: flex; align-items: center; justify-content: center; z-index: 2000;
+    }
+    #modal.hidden { display: none; }
+    .modal-box {
+      background: var(--panel); border: 1px solid var(--border);
+      border-radius: 9px; width: 490px; max-height: 90vh;
+      overflow-y: auto; padding: 22px;
+    }
+    .modal-title {
+      font-size: 14px; font-weight: 700; margin-bottom: 18px;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .modal-close { background: none; border: none; color: var(--muted); font-size: 18px; cursor: pointer; line-height: 1; }
+    .modal-close:hover { color: var(--text); }
+    .form-row { margin-bottom: 13px; }
+    .form-row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .form-label { display: block; font-size: 10px; font-weight: 700; color: var(--muted); margin-bottom: 4px; text-transform: uppercase; letter-spacing: .05em; }
+    .form-input {
+      width: 100%; background: var(--bg); border: 1px solid var(--border);
+      border-radius: 5px; color: var(--text); padding: 7px 9px; font-size: 12px;
+      font-family: inherit;
+    }
+    .form-input:focus { outline: none; border-color: var(--accent); }
+    textarea.form-input { resize: vertical; }
+    .import-hint    { font-size: 10px; color: var(--muted); margin-top: 3px; }
+    .import-preview { font-size: 10px; color: var(--accent); margin-top: 3px; min-height: 14px; }
+    .modal-actions { display: flex; gap: 8px; margin-top: 18px; }
+    .btn-primary   { flex: 1; padding: 9px 0; background: var(--accent); border: none; border-radius: 5px; color: #000; font-size: 12px; font-weight: 700; cursor: pointer; }
+    .btn-primary:hover { opacity: .85; }
+    .btn-secondary { padding: 9px 18px; background: transparent; border: 1px solid var(--border); border-radius: 5px; color: var(--muted); font-size: 12px; cursor: pointer; }
+    .btn-secondary:hover { border-color: var(--accent); color: var(--text); }
+    .btn-danger    { padding: 9px 14px; background: rgba(248,81,73,.12); border: 1px solid var(--red); border-radius: 5px; color: var(--red); font-size: 12px; cursor: pointer; }
+
+    /* ── View tabs ── */
+    #view-tabs {
+      display: flex; border-bottom: 1px solid var(--border); flex-shrink: 0;
+    }
+    .vtab {
+      flex: 1; padding: 9px 0; font-size: 11px; font-weight: 700;
+      background: none; border: none; cursor: pointer; color: var(--muted);
+      border-bottom: 2px solid transparent; margin-bottom: -1px;
+      transition: color .15s, border-color .15s;
+    }
+    .vtab.active { color: var(--accent); border-bottom-color: var(--accent); }
+
+    /* ── Calendar view ── */
+    #cal-view { display: none; flex-direction: column; flex: 1; overflow: hidden; }
+    #cal-view.active { display: flex; }
+    #list-view { display: flex; flex-direction: column; flex: 1; overflow: hidden; }
+    #list-view.hidden { display: none; }
+
+    #cal-nav {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 8px 12px; border-bottom: 1px solid var(--border); flex-shrink: 0;
+    }
+    .cal-nav-btn {
+      background: none; border: 1px solid var(--border); border-radius: 4px;
+      color: var(--muted); padding: 3px 9px; cursor: pointer; font-size: 13px;
+      transition: border-color .15s, color .15s;
+    }
+    .cal-nav-btn:hover { border-color: var(--accent); color: var(--accent); }
+    #cal-week-label { font-size: 11px; font-weight: 700; color: var(--text); }
+
+    #cal-grid {
+      flex: 1; overflow-y: auto;
+      display: grid; grid-template-columns: repeat(7, 1fr);
+      gap: 0; align-content: start;
+    }
+    .cal-day-head {
+      padding: 5px 4px 4px; text-align: center; font-size: 9px; font-weight: 700;
+      color: var(--muted); border-bottom: 1px solid var(--border);
+      border-right: 1px solid var(--border); letter-spacing: .03em; position: sticky; top: 0;
+      background: var(--panel); z-index: 1; text-transform: uppercase;
+    }
+    .cal-day-head.today { color: var(--accent); }
+    .cal-day-head span { display: block; font-size: 14px; font-weight: 800; color: var(--text); margin-top: 1px; }
+    .cal-day-head.today span { color: var(--accent); }
+    .cal-col {
+      border-right: 1px solid var(--border); padding: 4px 3px;
+      min-height: 80px; vertical-align: top;
+    }
+    .cal-col:last-child { border-right: none; }
+    .cal-event {
+      border-radius: 3px; padding: 3px 5px; margin-bottom: 3px;
+      font-size: 9px; font-weight: 700; cursor: pointer;
+      line-height: 1.3; transition: opacity .15s;
+    }
+    .cal-event:hover { opacity: .75; }
+    .cal-event.pending { background: rgba(210,153,34,.25); border-left: 2px solid var(--yellow); color: var(--yellow); }
+    .cal-event.cleared { background: rgba(63,185,80,.2);  border-left: 2px solid var(--green);  color: var(--green); }
+    .cal-event.denied  { background: rgba(248,81,73,.2);  border-left: 2px solid var(--red);    color: var(--red); }
+    .cal-event-time { font-size: 8px; opacity: .8; }
+    .cal-empty { font-size: 9px; color: var(--border); text-align: center; padding-top: 10px; }
+
+    /* Scrollbar */
+    ::-webkit-scrollbar { width: 5px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: #30363d; border-radius: 3px; }
+
+    /* ── Responsive ── */
+    @media (max-width: 820px) {
+      #layout { flex-direction: column-reverse; }
+      #sidebar { width: 100%; height: 52vh; border-right: none; border-top: 1px solid var(--border); }
+      #map { height: 48vh; }
+      .modal-box { width: 95vw; padding: 16px; }
+    }
+    @media (max-width: 480px) {
+      #hdr { padding: 0 10px; gap: 8px; }
+      .hdr-sub { display: none; }
+      #hdr-clock { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+<header id="hdr">
+  <span class="hdr-logo">✈ AFIS</span>
+  <span class="hdr-sep"></span>
+  <span class="hdr-sub">Karpathos UAS Operations</span>
+  <a id="hdr-pilot-link" href="index.html">← Pilot tool</a>
+  <span id="hdr-clock"></span>
+</header>
+
+<div id="layout">
+  <aside id="sidebar">
+    <!-- View tabs -->
+    <div id="view-tabs">
+      <button class="vtab active" data-view="list">📋 List</button>
+      <button class="vtab"        data-view="cal">📅 Calendar</button>
+    </div>
+
+    <!-- LIST VIEW -->
+    <div id="list-view">
+      <div id="filter-bar">
+        <input type="date" id="date-filter" class="filter-date"/>
+        <div class="status-pills">
+          <button class="pill active"    data-status="all">All</button>
+          <button class="pill p-pending" data-status="pending">Pending</button>
+          <button class="pill p-cleared" data-status="cleared">Cleared</button>
+          <button class="pill p-denied"  data-status="denied">Denied</button>
+        </div>
+      </div>
+      <div id="flight-list"></div>
+    </div>
+
+    <!-- CALENDAR VIEW -->
+    <div id="cal-view">
+      <div id="cal-nav">
+        <button class="cal-nav-btn" id="cal-prev">‹</button>
+        <span id="cal-week-label"></span>
+        <button class="cal-nav-btn" id="cal-next">›</button>
+      </div>
+      <!-- Day headers + columns rendered by JS -->
+      <div id="cal-grid"></div>
+    </div>
+  </aside>
+
+  <div id="map"></div>
+</div>
+
+<!-- Add / Edit modal -->
+<div id="modal" class="hidden">
+  <div class="modal-box">
+    <div class="modal-title">
+      <span id="modal-heading">New flight request</span>
+      <button class="modal-close" id="modal-close-btn">✕</button>
+    </div>
+
+    <div class="form-row">
+      <label class="form-label">Import pilot URL (optional)</label>
+      <input type="text" id="f-url" class="form-input" placeholder="Paste the pilot's grid link here…"/>
+      <div class="import-hint">Cells are automatically extracted from the URL hash</div>
+      <div class="import-preview" id="f-url-preview"></div>
+    </div>
+
+    <div class="form-row">
+      <label class="form-label">Pilot name</label>
+      <input type="text" id="f-pilot" class="form-input" placeholder="E.g. Lucas Joshua"/>
+    </div>
+
+    <div class="form-row form-row-2">
+      <div>
+        <label class="form-label">Drone registration</label>
+        <input type="text" id="f-reg" class="form-input" placeholder="NL-XXXX"/>
+      </div>
+      <div>
+        <label class="form-label">Drone type</label>
+        <input type="text" id="f-type" class="form-input" placeholder="DJI Mini 4 Pro"/>
+      </div>
+    </div>
+
+    <div class="form-row form-row-2">
+      <div>
+        <label class="form-label">Flight date</label>
+        <input type="date" id="f-date" class="form-input"/>
+      </div>
+      <div class="form-row-2">
+        <div>
+          <label class="form-label">Time from</label>
+          <input type="time" id="f-from" class="form-input"/>
+        </div>
+        <div>
+          <label class="form-label">Time to</label>
+          <input type="time" id="f-to" class="form-input"/>
+        </div>
+      </div>
+    </div>
+
+    <div class="form-row">
+      <label class="form-label">Pilot remarks</label>
+      <textarea id="f-notes" class="form-input" rows="2" placeholder="Purpose of flight, special conditions…"></textarea>
+    </div>
+
+    <div class="form-row">
+      <label class="form-label">AFIS note (internal)</label>
+      <textarea id="f-afis" class="form-input" rows="2" placeholder="Internal AFIS annotation…"></textarea>
+    </div>
+
+    <div class="modal-actions">
+      <button class="btn-danger" id="modal-delete-btn" style="display:none">Delete</button>
+      <button class="btn-secondary" id="modal-cancel-btn">Cancel</button>
+      <button class="btn-primary"   id="modal-save-btn">Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- Leaflet JS with 3-CDN fallback -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"
+        integrity="sha512-BwHfrr4c9kmRkLw6iXFdzcdWV/PGkVgiIyIWLLlTSXzWQzxuSg4DiQUCpauz/EWjgk5TYQqX/kvn9pG1NpYfqg=="
+        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script>
+if (!window.L) {
+  const s = document.createElement('script');
+  s.src = 'https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.min.js';
+  s.onerror = () => {
+    const s2 = document.createElement('script');
+    s2.src = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.min.js';
+    document.head.appendChild(s2);
+  };
+  document.head.appendChild(s);
+}
+</script>
+
+<script>
+// ══════════════════════════════════════════════════════
+//  AFIS Dashboard — Karpathos UAS Operaties
+// ══════════════════════════════════════════════════════
+
+function waitForLeaflet(cb) {
+  if (window.L) { cb(); } else { setTimeout(() => waitForLeaflet(cb), 80); }
+}
+
+waitForLeaflet(function() {
+
+  // ── Live clock ──────────────────────────────────────
+  const clockEl = document.getElementById('hdr-clock');
+  function tick() {
+    const n = new Date();
+    clockEl.textContent =
+      n.toLocaleDateString('nl-NL',{weekday:'short',day:'numeric',month:'short',year:'numeric'}) +
+      ' — ' +
+      n.toLocaleTimeString('nl-NL',{hour:'2-digit',minute:'2-digit',second:'2-digit'}) + ' LT';
+  }
+  tick(); setInterval(tick, 1000);
+
+  // ── Map init ────────────────────────────────────────
+  const map = L.map('map', { zoomControl: true, zoomSnap: 0.25, zoomDelta: 0.5 });
+  const osmTile = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+    { attribution: '© OpenStreetMap', maxZoom: 19 });
+  const satTile = L.tileLayer(
+    'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
+    { attribution: '© Esri', maxZoom: 19 });
+  osmTile.addTo(map);
+
+  // ── Grid constants (same as index.html) ─────────────
+  const B   = { west:27.01, east:27.28, south:35.40, north:35.92 };
+  const DX  = 0.022, DY = 0.018;
+  const COLS = Math.ceil((B.east  - B.west)  / DX);   // 13
+  const ROWS = Math.ceil((B.north - B.south) / DY);   // 29
+  const colLetter = i => String.fromCharCode(65 + i);
+
+  // ── Airspace polygons (same as index.html) ──────────
+  const CTR_POLY  = [[35.42164,27.45083],[35.47072,27.44489],[35.51789,27.42732],[35.56134,27.39878],[35.5994,27.36037],[35.63063,27.31357],[35.65382,27.26018],[35.6681,27.20224],[35.67292,27.14199],[35.6681,27.08174],[35.65382,27.0238],[35.63063,26.97041],[35.5994,26.92361],[35.56134,26.8852],[35.51789,26.85666],[35.47072,26.83909],[35.42164,26.83315],[35.37253,26.83909],[35.32527,26.85666],[35.28169,26.8852],[35.24348,26.92361],[35.21211,26.97041],[35.18879,27.0238],[35.17442,27.08174],[35.16957,27.14199],[35.17442,27.20224],[35.18879,27.26018],[35.21211,27.31357],[35.24348,27.36037],[35.28169,27.39878],[35.32527,27.42732],[35.37253,27.44489],[35.42164,27.45083]];
+  const LGKP_POLY = [[35.41037,27.02173],[35.38152,27.07163],[35.3716,27.08228],[35.36189,27.09568],[35.35486,27.10999],[35.3504,27.12956],[35.34884,27.14646],[35.32095,27.19642],[35.4387,27.29576],[35.47975,27.22389],[35.4668,27.21392],[35.47217,27.20813],[35.48103,27.19498],[35.48351,27.18962],[35.48779,27.19336],[35.52891,27.12077],[35.41037,27.02173]];
+  const ATZ_POLY  = [[35.42344,27.24823],[35.4399,27.24623],[35.45572,27.24034],[35.47031,27.23077],[35.48308,27.2179],[35.49357,27.20221],[35.50136,27.1843],[35.50615,27.16488],[35.50777,27.14468],[35.50615,27.12448],[35.50136,27.10506],[35.49357,27.08715],[35.48308,27.07146],[35.47031,27.05859],[35.45572,27.04902],[35.4399,27.04313],[35.42344,27.04114],[35.40698,27.04313],[35.39115,27.04902],[35.37655,27.05859],[35.36375,27.07146],[35.35325,27.08715],[35.34545,27.10506],[35.34064,27.12448],[35.33902,27.14468],[35.34064,27.16488],[35.34545,27.1843],[35.35325,27.20221],[35.36375,27.2179],[35.37655,27.23077],[35.39115,27.24034],[35.40698,27.24623],[35.42344,27.24823]];
+  const OLY_POLY  = [[35.73798,27.28251],[35.752,27.28081],[35.76549,27.27577],[35.77792,27.26758],[35.78881,27.25656],[35.79774,27.24314],[35.80438,27.22782],[35.80847,27.2112],[35.80985,27.19392],[35.80847,27.17664],[35.80438,27.16002],[35.79774,27.1447],[35.78881,27.13128],[35.77792,27.12026],[35.76549,27.11208],[35.752,27.10703],[35.73798,27.10533],[35.72395,27.10703],[35.71046,27.11208],[35.69802,27.12026],[35.68711,27.13128],[35.67817,27.1447],[35.67151,27.16002],[35.66742,27.17664],[35.66604,27.19392],[35.66742,27.2112],[35.67151,27.22782],[35.67817,27.24314],[35.68711,27.25656],[35.69802,27.26758],[35.71046,27.27577],[35.72395,27.28081],[35.73798,27.28251]];
+
+  // Point-in-polygon
+  function pip(poly, lat, lon) {
+    let inside = false;
+    for (let i=0, j=poly.length-1; i<poly.length; j=i++) {
+      const [yi,xi]=poly[i], [yj,xj]=poly[j];
+      if (((yi>lat)!==(yj>lat)) && (lon<(xj-xi)*(lat-yi)/(yj-yi)+xi)) inside=!inside;
+    }
+    return inside;
+  }
+
+  // ── Cell styles ─────────────────────────────────────
+  const S_NORM  = { color:'#2d4a6e', weight:.6, fillColor:'#1a3a5c', fillOpacity:.12, opacity:.5 };
+  const S_CTR   = { color:'#1a7fd4', weight:.8, fillColor:'#1a7fd4', fillOpacity:.05, opacity:.4 };
+  const S_HILIT = { color:'#58a6ff', weight:2.5, fillColor:'#1a7fd4', fillOpacity:.5, opacity:1 };
+
+  // ── Draw grid (read-only, no interactions) ──────────
+  const gridRects = {};
+
+  for (let r=0; r<ROWS; r++) {
+    for (let c=2; c<COLS-2; c++) {
+      const id  = colLetter(c-2) + (r+1);
+      const s   = B.south + r*DY,  w = B.west + c*DX;
+      const lat = s + DY/2,         lon = w + DX/2;
+      const isCTR = pip(CTR_POLY,lat,lon) || pip(ATZ_POLY,lat,lon);
+      const rect = L.rectangle([[s,w],[s+DY,w+DX]], isCTR ? {...S_CTR} : {...S_NORM});
+      rect._isCTR = isCTR;
+      rect.addTo(map);
+      gridRects[id] = rect;
+    }
+  }
+
+  map.fitBounds([[B.south, B.west+2*DX],[B.north, B.east-2*DX]], {padding:[8,8]});
+
+  // ── Airspace overlays ───────────────────────────────
+  const airLayer = L.layerGroup().addTo(map);
+  L.polygon(CTR_POLY,{color:'#FFA500',weight:2.5,fillColor:'#FFA500',fillOpacity:.07,dashArray:'10 5'})
+   .bindTooltip('CTR Karpathos<br><small>Standing permission granted</small>',{sticky:true,className:'ctip'}).addTo(airLayer);
+  L.polygon(LGKP_POLY,{color:'#FF0000',weight:2,fillColor:'#FF0000',fillOpacity:.20})
+   .bindTooltip('LGKP AD Perimeter<br><small>Hard no-fly zone</small>',{sticky:true,className:'ctip'}).addTo(airLayer);
+  L.polygon(ATZ_POLY,{color:'#FF0000',weight:2,fillColor:'#FF0000',fillOpacity:.15,dashArray:'5 3'})
+   .bindTooltip('Karpathos ATZ<br><small>AFIS coordination required</small>',{sticky:true,className:'ctip'}).addTo(airLayer);
+  L.polygon(OLY_POLY,{color:'#FF0000',weight:2,fillColor:'#FF0000',fillOpacity:.20})
+   .bindTooltip('Olympos Heliport<br><small>Hard no-fly zone</small>',{sticky:true,className:'ctip'}).addTo(airLayer);
+
+  L.control.layers(
+    {'Street Map':osmTile,'Satellite':satTile},
+    {'Airspace zones':airLayer},
+    {position:'topleft',collapsed:false}
+  ).addTo(map);
+
+  // ── Cell highlight ───────────────────────────────────
+  function clearHighlight() {
+    Object.values(gridRects).forEach(r => r.setStyle(r._isCTR ? {...S_CTR} : {...S_NORM}));
+  }
+
+  function highlightCells(cells) {
+    clearHighlight();
+    if (!cells || !cells.length) return;
+    const valid = cells.filter(id => gridRects[id]);
+    valid.forEach(id => gridRects[id].setStyle({...S_HILIT}));
+    try {
+      const bounds = valid.map(id => gridRects[id].getBounds()).reduce((a,b) => a.extend(b));
+      map.fitBounds(bounds, {padding:[48,48], maxZoom:14});
+    } catch(e){}
+  }
+
+  // ── IndexedDB ────────────────────────────────────────
+  const DB_NAME='atc-grid-db', DB_VER=1, DB_STORE='flights';
+  let _db = null;
+
+  function openDB() {
+    if (_db) return Promise.resolve(_db);
+    return new Promise((res,rej) => {
+      const req = indexedDB.open(DB_NAME, DB_VER);
+      req.onupgradeneeded = e => e.target.result.createObjectStore(DB_STORE, {keyPath:'id'});
+      req.onsuccess = e => { _db = e.target.result; res(_db); };
+      req.onerror   = e => rej(e.target.error);
+    });
+  }
+  function tx(mode) { return openDB().then(db => db.transaction(DB_STORE,mode).objectStore(DB_STORE)); }
+
+  async function dbPut(flight)    { const s=await tx('readwrite'); return new Promise((r,j)=>{ const q=s.put(flight); q.onsuccess=r; q.onerror=e=>j(e.target.error); }); }
+  async function dbDelete(id)     { const s=await tx('readwrite'); return new Promise((r,j)=>{ const q=s.delete(id); q.onsuccess=r; q.onerror=e=>j(e.target.error); }); }
+  async function dbGetAll()       { const s=await tx('readonly');  return new Promise((r,j)=>{ const q=s.getAll();   q.onsuccess=e=>r(e.target.result); q.onerror=e=>j(e.target.error); }); }
+
+  // ── Mini SVG grid preview ────────────────────────────
+  // 9 cols (C–K, index 0–8), 29 rows
+  function miniGrid(cells) {
+    const W=90, H=116, NC=9, NR=29;
+    const cW=W/NC, cH=H/NR;
+    const set = new Set(cells);
+    let svg = `<svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg">`;
+    for (let r=0; r<NR; r++) {
+      for (let c=0; c<NC; c++) {
+        const id  = colLetter(c)+(r+1);
+        const sel = set.has(id);
+        const x=(c*cW).toFixed(1), y=(r*cH).toFixed(1);
+        const w=(cW-.6).toFixed(1), h=(cH-.4).toFixed(1);
+        svg += `<rect x="${x}" y="${y}" width="${w}" height="${h}" fill="${sel?'#1a7fd4':'#1c2733'}" stroke="#0d1117" stroke-width="0.4"/>`;
+      }
+    }
+    return svg + '</svg>';
+  }
+
+  // ── Filter state ─────────────────────────────────────
+  const dateEl = document.getElementById('date-filter');
+  dateEl.value = new Date().toISOString().slice(0,10);
+  let filterStatus = 'all';
+  let filterDate   = dateEl.value;
+  let activeId     = null; // currently highlighted flight id
+
+  // ── Render flight list ───────────────────────────────
+  const statusLabel = { pending:'PENDING', cleared:'CLEARED', denied:'DENIED' };
+
+  async function renderFlights() {
+    const all = await dbGetAll();
+    all.sort((a,b) => {
+      const da = (a.date||'9999') + (a.timeFrom||'99:99');
+      const db = (b.date||'9999') + (b.timeFrom||'99:99');
+      return da.localeCompare(db);
+    });
+
+    const shown = all.filter(f => {
+      if (filterStatus !== 'all' && f.status !== filterStatus) return false;
+      if (filterDate && f.date && f.date !== filterDate)       return false;
+      return true;
+    });
+
+    const list = document.getElementById('flight-list');
+    list.innerHTML = '';
+
+    if (!shown.length) {
+      list.innerHTML = '<div style="text-align:center;color:var(--muted);font-size:12px;margin-top:44px">No flights found</div>';
+      return;
+    }
+
+    shown.forEach(f => {
+      const card = document.createElement('div');
+      card.className = 'fcard' + (f.id === activeId ? ' active' : '');
+      card.dataset.id = f.id;
+
+      const dStr = f.date
+        ? new Date(f.date+'T12:00:00').toLocaleDateString('nl-NL',{day:'numeric',month:'short',year:'2-digit'})
+        : '—';
+      const cellStr = f.cells.length <= 7
+        ? f.cells.join(', ')
+        : f.cells.slice(0,7).join(', ') + ` +${f.cells.length-7}`;
+      const cellPreview = cellStr;
+
+      card.innerHTML = `
+        <div class="fcard-head">
+          <div class="fcard-status ${f.status}">
+            <span class="status-dot ${f.status}"></span>${statusLabel[f.status]||f.status.toUpperCase()}
+          </div>
+          <span class="fcard-date">${dStr}</span>
+        </div>
+        <div class="fcard-time">${f.timeFrom||'??:??'} – ${f.timeTo||'??:??'}</div>
+        <div class="fcard-pilot"><strong>${f.pilotName||'Onbekend'}</strong>${f.droneReg?' · '+f.droneReg:''}${f.droneType?' · '+f.droneType:''}</div>
+        <div class="fcard-body">
+          <div class="fcard-mini">${miniGrid(f.cells)}</div>
+          <div class="fcard-info">
+            <div class="fcard-cells"><strong>${f.cells.length} cell${f.cells.length!==1?'s':''}:</strong> ${cellPreview}</div>
+            ${f.notes   ? `<div class="fcard-notes">${escHtml(f.notes)}</div>`    : ''}
+            ${f.afisNote? `<div class="fcard-afis">✈ ${escHtml(f.afisNote)}</div>` : ''}
+          </div>
+        </div>
+        <div class="fcard-actions">
+          ${f.status!=='cleared' ? `<button class="btn-sm btn-clear" data-action="clear" data-id="${f.id}">✓ Clear</button>` : ''}
+          ${f.status!=='denied'  ? `<button class="btn-sm btn-deny"  data-action="deny"  data-id="${f.id}">✗ Deny</button>` : ''}
+          <button class="btn-sm btn-edit" data-action="edit" data-id="${f.id}">✎ Edit</button>
+        </div>`;
+
+      // Click card body → highlight on map
+      card.addEventListener('click', e => {
+        if (e.target.closest('[data-action]')) return;
+        activeId = f.id;
+        highlightCells(f.cells);
+        renderFlights();
+      });
+
+      list.appendChild(card);
+    });
+  }
+
+  function escHtml(s) {
+    return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  }
+
+  // Action buttons (delegated)
+  document.getElementById('flight-list').addEventListener('click', async e => {
+    const btn = e.target.closest('[data-action]');
+    if (!btn) return;
+    const id     = Number(btn.dataset.id);
+    const action = btn.dataset.action;
+
+    if (action === 'clear' || action === 'deny') {
+      const all    = await dbGetAll();
+      const flight = all.find(f => f.id === id);
+      if (flight) {
+        flight.status = action === 'clear' ? 'cleared' : 'denied';
+        await dbPut(flight);
+        renderFlights();
+      }
+    } else if (action === 'edit') {
+      const all    = await dbGetAll();
+      const flight = all.find(f => f.id === id);
+      if (flight) openModal(flight);
+    }
+  });
+
+  // Filters
+  document.querySelectorAll('.pill').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.pill').forEach(p => p.classList.remove('active'));
+      btn.classList.add('active');
+      filterStatus = btn.dataset.status;
+      renderFlights();
+    });
+  });
+
+  dateEl.addEventListener('change', () => { filterDate = dateEl.value; renderFlights(); });
+
+  // ── Modal ────────────────────────────────────────────
+  let _editFlight   = null;
+  let _importCells  = [];
+
+  function openModal(flight = null) {
+    _editFlight  = flight || null;
+    _importCells = flight ? [...(flight.cells||[])] : [];
+
+    document.getElementById('modal-heading').textContent   = flight ? 'Edit flight request' : 'New flight request';
+    document.getElementById('modal-delete-btn').style.display = flight ? '' : 'none';
+
+    document.getElementById('f-url').value         = '';
+    document.getElementById('f-url-preview').textContent = flight && flight.cells.length
+      ? `✓ ${flight.cells.length} cellen: ${flight.cells.join(', ')}`
+      : '';
+    document.getElementById('f-pilot').value       = flight?.pilotName  || '';
+    document.getElementById('f-reg').value         = flight?.droneReg   || '';
+    document.getElementById('f-type').value        = flight?.droneType  || '';
+    document.getElementById('f-date').value        = flight?.date       || filterDate || '';
+    document.getElementById('f-from').value        = flight?.timeFrom   || '';
+    document.getElementById('f-to').value          = flight?.timeTo     || '';
+    document.getElementById('f-notes').value       = flight?.notes      || '';
+    document.getElementById('f-afis').value        = flight?.afisNote   || '';
+
+    document.getElementById('modal').classList.remove('hidden');
+  }
+
+  function closeModal() {
+    document.getElementById('modal').classList.add('hidden');
+    _editFlight = null; _importCells = [];
+  }
+
+  // Parse cells from pilot URL
+  document.getElementById('f-url').addEventListener('input', e => {
+    const val     = e.target.value.trim();
+    const preview = document.getElementById('f-url-preview');
+    if (!val) { _importCells = []; preview.textContent = ''; return; }
+    try {
+      const hash  = val.includes('#') ? val.split('#')[1] : val;
+      const match = hash.match(/cells=([A-Za-z0-9,]+)/);
+      if (match) {
+        _importCells = match[1].split(',').map(s=>s.trim().toUpperCase()).filter(Boolean);
+        preview.textContent = `✓ ${_importCells.length} cells found: ${_importCells.join(', ')}`;
+      } else {
+        _importCells = [];
+        preview.textContent = '⚠ No cells found in the URL';
+      }
+    } catch { _importCells = []; preview.textContent = ''; }
+  });
+
+  // (add-btn removed — flights come in from pilot tool only)
+  document.getElementById('modal-close-btn')  .addEventListener('click', closeModal);
+  document.getElementById('modal-cancel-btn') .addEventListener('click', closeModal);
+  document.getElementById('modal').addEventListener('click', e => {
+    if (e.target === document.getElementById('modal')) closeModal();
+  });
+
+  document.getElementById('modal-delete-btn').addEventListener('click', async () => {
+    if (!_editFlight) return;
+    if (!confirm('Delete this flight request?')) return;
+    await dbDelete(_editFlight.id);
+    if (activeId === _editFlight.id) { activeId = null; clearHighlight(); }
+    closeModal();
+    renderFlights();
+  });
+
+  document.getElementById('modal-save-btn').addEventListener('click', async () => {
+    const cells = _importCells.length
+      ? _importCells
+      : (_editFlight?.cells || []);
+
+    const flight = {
+      id:        _editFlight?.id      ?? Date.now(),
+      status:    _editFlight?.status  ?? 'pending',
+      created:   _editFlight?.created ?? Date.now(),
+      pilotName: document.getElementById('f-pilot').value.trim(),
+      droneReg:  document.getElementById('f-reg').value.trim(),
+      droneType: document.getElementById('f-type').value.trim(),
+      date:      document.getElementById('f-date').value,
+      timeFrom:  document.getElementById('f-from').value,
+      timeTo:    document.getElementById('f-to').value,
+      notes:     document.getElementById('f-notes').value.trim(),
+      afisNote:  document.getElementById('f-afis').value.trim(),
+      cells,
+    };
+
+    await dbPut(flight);
+    closeModal();
+    renderFlights();
+  });
+
+  // ── View tab switching ───────────────────────────────
+  document.querySelectorAll('.vtab').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.vtab').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      const view = btn.dataset.view;
+      document.getElementById('list-view').classList.toggle('hidden', view !== 'list');
+      document.getElementById('cal-view').classList.toggle('active', view === 'cal');
+      if (view === 'cal') renderCalendar();
+    });
+  });
+
+  // ── Week calendar ────────────────────────────────────
+  // calWeekStart = Monday of the displayed week (Date object)
+  let calWeekStart = getMonday(new Date());
+
+  function getMonday(d) {
+    const dt = new Date(d);
+    const day = dt.getDay();
+    const diff = (day === 0 ? -6 : 1 - day);
+    dt.setDate(dt.getDate() + diff);
+    dt.setHours(0, 0, 0, 0);
+    return dt;
+  }
+
+  function isoDate(d) {
+    return d.toISOString().slice(0, 10);
+  }
+
+  const DAY_NAMES = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+  const MONTH_NAMES = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+
+  async function renderCalendar() {
+    const all = await dbGetAll();
+    const today = isoDate(new Date());
+
+    // Build week days array
+    const days = Array.from({length:7}, (_, i) => {
+      const d = new Date(calWeekStart);
+      d.setDate(d.getDate() + i);
+      return d;
+    });
+
+    // Week label
+    const wStart = days[0], wEnd = days[6];
+    document.getElementById('cal-week-label').textContent =
+      `${wStart.getDate()} ${MONTH_NAMES[wStart.getMonth()]} – ${wEnd.getDate()} ${MONTH_NAMES[wEnd.getMonth()]} ${wEnd.getFullYear()}`;
+
+    // Build grid HTML
+    const grid = document.getElementById('cal-grid');
+
+    // Headers row
+    let hdrs = '';
+    days.forEach((d, i) => {
+      const iso   = isoDate(d);
+      const isToday = iso === today;
+      hdrs += `<div class="cal-day-head${isToday?' today':''}">
+        ${DAY_NAMES[i]}<span>${d.getDate()}</span>
+      </div>`;
+    });
+
+    // Event columns
+    let cols = '';
+    days.forEach(d => {
+      const iso      = isoDate(d);
+      const dayFlights = all
+        .filter(f => f.date === iso)
+        .sort((a,b) => (a.timeFrom||'').localeCompare(b.timeFrom||''));
+
+      let events = dayFlights.length
+        ? dayFlights.map(f => {
+            const pilot = (f.pilotName||'—').split(' ')[0];
+            const time  = f.timeFrom ? `${f.timeFrom}${f.timeTo?'–'+f.timeTo:''}` : '';
+            return `<div class="cal-event ${f.status}" data-id="${f.id}" title="${f.pilotName||''} · ${f.cells.length} cells">
+              <div>${pilot}</div>
+              ${time ? `<div class="cal-event-time">${time}</div>` : ''}
+              <div class="cal-event-time">${f.cells.length} cell${f.cells.length!==1?'s':''}</div>
+            </div>`;
+          }).join('')
+        : `<div class="cal-empty">–</div>`;
+
+      cols += `<div class="cal-col">${events}</div>`;
+    });
+
+    grid.innerHTML = hdrs + cols;
+
+    // Click on cal event → highlight on map + switch to list view
+    grid.querySelectorAll('.cal-event').forEach(el => {
+      el.addEventListener('click', async () => {
+        const id  = Number(el.dataset.id);
+        const all = await dbGetAll();
+        const f   = all.find(x => x.id === id);
+        if (!f) return;
+        activeId = f.id;
+        highlightCells(f.cells);
+        // Switch to list and show the date
+        filterDate = f.date;
+        document.getElementById('date-filter').value = f.date;
+        document.querySelectorAll('.vtab')[0].click();
+      });
+    });
+  }
+
+  // Week navigation
+  document.getElementById('cal-prev').addEventListener('click', () => {
+    calWeekStart.setDate(calWeekStart.getDate() - 7);
+    renderCalendar();
+  });
+  document.getElementById('cal-next').addEventListener('click', () => {
+    calWeekStart.setDate(calWeekStart.getDate() + 7);
+    renderCalendar();
+  });
+
+  // ── Init ─────────────────────────────────────────────
+  renderFlights();
+
+}); // waitForLeaflet
+</script>
+</body>
+</html>

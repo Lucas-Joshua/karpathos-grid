@@ -1,0 +1,21 @@
+{
+  "name": "Karpathos UAS Grid Tool",
+  "short_name": "UAS Grid",
+  "description": "AFIS coordination grid for Karpathos drone operations — offline capable",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#0d1821",
+  "theme_color": "#0d1821",
+  "orientation": "any",
+  "lang": "en",
+  "categories": ["navigation", "utilities"],
+  "icons": [
+    {
+      "src": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'%3E%3Crect width='192' height='192' rx='32' fill='%230d1821'/%3E%3Ctext x='50%25' y='54%25' font-family='monospace' font-weight='bold' font-size='48' fill='%233d9cf0' text-anchor='middle' dominant-baseline='middle'%3EUAS%3C/text%3E%3Ctext x='50%25' y='78%25' font-family='monospace' font-size='22' fill='%234a6680' text-anchor='middle' dominant-baseline='middle'%3EGRID%3C/text%3E%3C/svg%3E",
+      "sizes": "192x192",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

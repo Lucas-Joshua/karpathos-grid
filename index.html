@@ -1,0 +1,1794 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
+  <title>Karpathos UAS Grid Tool</title>
+
+  <!-- PWA -->
+  <link rel="manifest" href="manifest.json"/>
+  <meta name="theme-color" content="#0d1821"/>
+  <meta name="apple-mobile-web-app-capable" content="yes"/>
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+  <meta name="apple-mobile-web-app-title" content="UAS Grid"/>
+  <meta name="mobile-web-app-capable" content="yes"/>
+
+  <!-- Leaflet CSS — inlined so it works without any CDN -->
+  <style>.leaflet-image-layer,.leaflet-layer,.leaflet-marker-icon,.leaflet-marker-shadow,.leaflet-pane,.leaflet-pane>canvas,.leaflet-pane>svg,.leaflet-tile,.leaflet-tile-container,.leaflet-zoom-box{position:absolute;left:0;top:0}.leaflet-container{overflow:hidden}.leaflet-marker-icon,.leaflet-marker-shadow,.leaflet-tile{-webkit-user-select:none;-moz-user-select:none;user-select:none;-webkit-user-drag:none}.leaflet-tile::selection{background:0 0}.leaflet-safari .leaflet-tile{image-rendering:-webkit-optimize-contrast}.leaflet-safari .leaflet-tile-container{width:1600px;height:1600px;-webkit-transform-origin:0 0}.leaflet-marker-icon,.leaflet-marker-shadow{display:block}.leaflet-container .leaflet-overlay-pane svg{max-width:none!important;max-height:none!important}.leaflet-container .leaflet-marker-pane img,.leaflet-container .leaflet-shadow-pane img,.leaflet-container .leaflet-tile,.leaflet-container .leaflet-tile-pane img,.leaflet-container img.leaflet-image-layer{max-width:none!important;max-height:none!important;width:auto;padding:0}.leaflet-container img.leaflet-tile{mix-blend-mode:plus-lighter}.leaflet-container.leaflet-touch-zoom{-ms-touch-action:pan-x pan-y;touch-action:pan-x pan-y}.leaflet-container.leaflet-touch-drag{-ms-touch-action:pinch-zoom;touch-action:none;touch-action:pinch-zoom}.leaflet-container.leaflet-touch-drag.leaflet-touch-zoom{-ms-touch-action:none;touch-action:none}.leaflet-container{-webkit-tap-highlight-color:transparent}.leaflet-container a{-webkit-tap-highlight-color:rgba(51,181,229,.4)}.leaflet-tile{filter:inherit;visibility:hidden}.leaflet-tile-loaded{visibility:inherit}.leaflet-zoom-box{width:0;height:0;-moz-box-sizing:border-box;box-sizing:border-box;z-index:800}.leaflet-overlay-pane svg{-moz-user-select:none}.leaflet-pane{z-index:400}.leaflet-tile-pane{z-index:200}.leaflet-overlay-pane{z-index:400}.leaflet-shadow-pane{z-index:500}.leaflet-marker-pane{z-index:600}.leaflet-tooltip-pane{z-index:650}.leaflet-popup-pane{z-index:700}.leaflet-map-pane canvas{z-index:100}.leaflet-map-pane svg{z-index:200}.leaflet-vml-shape{width:1px;height:1px}.lvml{behavior:url(#default#VML);display:inline-block;position:absolute}.leaflet-control{position:relative;z-index:800;pointer-events:visiblePainted;pointer-events:auto}.leaflet-bottom,.leaflet-top{position:absolute;z-index:1000;pointer-events:none}.leaflet-top{top:0}.leaflet-right{right:0}.leaflet-bottom{bottom:0}.leaflet-left{left:0}.leaflet-control{float:left;clear:both}.leaflet-right .leaflet-control{float:right}.leaflet-top .leaflet-control{margin-top:10px}.leaflet-bottom .leaflet-control{margin-bottom:10px}.leaflet-left .leaflet-control{margin-left:10px}.leaflet-right .leaflet-control{margin-right:10px}.leaflet-fade-anim .leaflet-popup{opacity:0;-webkit-transition:opacity .2s linear;-moz-transition:opacity .2s linear;transition:opacity .2s linear}.leaflet-fade-anim .leaflet-map-pane .leaflet-popup{opacity:1}.leaflet-zoom-animated{-webkit-transform-origin:0 0;-ms-transform-origin:0 0;transform-origin:0 0}svg.leaflet-zoom-animated{will-change:transform}.leaflet-zoom-anim .leaflet-zoom-animated{-webkit-transition:-webkit-transform .25s cubic-bezier(0,0,.25,1);-moz-transition:-moz-transform .25s cubic-bezier(0,0,.25,1);transition:transform .25s cubic-bezier(0,0,.25,1)}.leaflet-pan-anim .leaflet-tile,.leaflet-zoom-anim .leaflet-tile{-webkit-transition:none;-moz-transition:none;transition:none}.leaflet-zoom-anim .leaflet-zoom-hide{visibility:hidden}.leaflet-interactive{cursor:pointer}.leaflet-grab{cursor:-webkit-grab;cursor:-moz-grab;cursor:grab}.leaflet-crosshair,.leaflet-crosshair .leaflet-interactive{cursor:crosshair}.leaflet-control,.leaflet-popup-pane{cursor:auto}.leaflet-dragging .leaflet-grab,.leaflet-dragging .leaflet-grab .leaflet-interactive,.leaflet-dragging .leaflet-marker-draggable{cursor:move;cursor:-webkit-grabbing;cursor:-moz-grabbing;cursor:grabbing}.leaflet-image-layer,.leaflet-marker-icon,.leaflet-marker-shadow,.leaflet-pane>svg path,.leaflet-tile-container{pointer-events:none}.leaflet-image-layer.leaflet-interactive,.leaflet-marker-icon.leaflet-interactive,.leaflet-pane>svg path.leaflet-interactive,svg.leaflet-image-layer.leaflet-interactive path{pointer-events:visiblePainted;pointer-events:auto}.leaflet-container{background:#ddd;outline-offset:1px}.leaflet-container a{color:#0078a8}.leaflet-zoom-box{border:2px dotted #38f;background:rgba(255,255,255,.5)}.leaflet-container{font-family:"Helvetica Neue",Arial,Helvetica,sans-serif;font-size:12px;font-size:.75rem;line-height:1.5}.leaflet-bar{box-shadow:0 1px 5px rgba(0,0,0,.65);border-radius:4px}.leaflet-bar a{background-color:#fff;border-bottom:1px solid #ccc;width:26px;height:26px;line-height:26px;display:block;text-align:center;text-decoration:none;color:#000}.leaflet-bar a,.leaflet-control-layers-toggle{background-position:50% 50%;background-repeat:no-repeat;display:block}.leaflet-bar a:focus,.leaflet-bar a:hover{background-color:#f4f4f4}.leaflet-bar a:first-child{border-top-left-radius:4px;border-top-right-radius:4px}.leaflet-bar a:last-child{border-bottom-left-radius:4px;border-bottom-right-radius:4px;border-bottom:none}.leaflet-bar a.leaflet-disabled{cursor:default;background-color:#f4f4f4;color:#bbb}.leaflet-touch .leaflet-bar a{width:30px;height:30px;line-height:30px}.leaflet-touch .leaflet-bar a:first-child{border-top-left-radius:2px;border-top-right-radius:2px}.leaflet-touch .leaflet-bar a:last-child{border-bottom-left-radius:2px;border-bottom-right-radius:2px}.leaflet-control-zoom-in,.leaflet-control-zoom-out{font:bold 18px 'Lucida Console',Monaco,monospace;text-indent:1px}.leaflet-touch .leaflet-control-zoom-in,.leaflet-touch .leaflet-control-zoom-out{font-size:22px}.leaflet-control-layers{box-shadow:0 1px 5px rgba(0,0,0,.4);background:#fff;border-radius:5px}.leaflet-control-layers-toggle{background-image:url(images/layers.png);width:36px;height:36px}.leaflet-retina .leaflet-control-layers-toggle{background-image:url(images/layers-2x.png);background-size:26px 26px}.leaflet-touch .leaflet-control-layers-toggle{width:44px;height:44px}.leaflet-control-layers .leaflet-control-layers-list,.leaflet-control-layers-expanded .leaflet-control-layers-toggle{display:none}.leaflet-control-layers-expanded .leaflet-control-layers-list{display:block;position:relative}.leaflet-control-layers-expanded{padding:6px 10px 6px 6px;color:#333;background:#fff}.leaflet-control-layers-scrollbar{overflow-y:scroll;overflow-x:hidden;padding-right:5px}.leaflet-control-layers-selector{margin-top:2px;position:relative;top:1px}.leaflet-control-layers label{display:block;font-size:13px;font-size:1.08333em}.leaflet-control-layers-separator{height:0;border-top:1px solid #ddd;margin:5px -10px 5px -6px}.leaflet-default-icon-path{background-image:url(images/marker-icon.png)}.leaflet-container .leaflet-control-attribution{background:#fff;background:rgba(255,255,255,.8);margin:0}.leaflet-control-attribution,.leaflet-control-scale-line{padding:0 5px;color:#333;line-height:1.4}.leaflet-control-attribution a{text-decoration:none}.leaflet-control-attribution a:focus,.leaflet-control-attribution a:hover{text-decoration:underline}.leaflet-attribution-flag{display:inline!important;vertical-align:baseline!important;width:1em;height:.6669em}.leaflet-left .leaflet-control-scale{margin-left:5px}.leaflet-bottom .leaflet-control-scale{margin-bottom:5px}.leaflet-control-scale-line{border:2px solid #777;border-top:none;line-height:1.1;padding:2px 5px 1px;white-space:nowrap;-moz-box-sizing:border-box;box-sizing:border-box;background:rgba(255,255,255,.8);text-shadow:1px 1px #fff}.leaflet-control-scale-line:not(:first-child){border-top:2px solid #777;border-bottom:none;margin-top:-2px}.leaflet-control-scale-line:not(:first-child):not(:last-child){border-bottom:2px solid #777}.leaflet-touch .leaflet-bar,.leaflet-touch .leaflet-control-attribution,.leaflet-touch .leaflet-control-layers{box-shadow:none}.leaflet-touch .leaflet-bar,.leaflet-touch .leaflet-control-layers{border:2px solid rgba(0,0,0,.2);background-clip:padding-box}.leaflet-popup{position:absolute;text-align:center;margin-bottom:20px}.leaflet-popup-content-wrapper{padding:1px;text-align:left;border-radius:12px}.leaflet-popup-content{margin:13px 24px 13px 20px;line-height:1.3;font-size:13px;font-size:1.08333em;min-height:1px}.leaflet-popup-content p{margin:17px 0;margin:1.3em 0}.leaflet-popup-tip-container{width:40px;height:20px;position:absolute;left:50%;margin-top:-1px;margin-left:-20px;overflow:hidden;pointer-events:none}.leaflet-popup-tip{width:17px;height:17px;padding:1px;margin:-10px auto 0;pointer-events:auto;-webkit-transform:rotate(45deg);-moz-transform:rotate(45deg);-ms-transform:rotate(45deg);transform:rotate(45deg)}.leaflet-popup-content-wrapper,.leaflet-popup-tip{background:#fff;color:#333;box-shadow:0 3px 14px rgba(0,0,0,.4)}.leaflet-container a.leaflet-popup-close-button{position:absolute;top:0;right:0;border:none;text-align:center;width:24px;height:24px;font:16px/24px Tahoma,Verdana,sans-serif;color:#757575;text-decoration:none;background:0 0}.leaflet-container a.leaflet-popup-close-button:focus,.leaflet-container a.leaflet-popup-close-button:hover{color:#585858}.leaflet-popup-scrolled{overflow:auto}.leaflet-oldie .leaflet-popup-content-wrapper{-ms-zoom:1}.leaflet-oldie .leaflet-popup-tip{width:24px;margin:0 auto}.leaflet-oldie .leaflet-control-layers,.leaflet-oldie .leaflet-control-zoom,.leaflet-oldie .leaflet-popup-content-wrapper,.leaflet-oldie .leaflet-popup-tip{border:1px solid #999}.leaflet-div-icon{background:#fff;border:1px solid #666}.leaflet-tooltip{position:absolute;padding:6px;background-color:#fff;border:1px solid #fff;border-radius:3px;color:#222;white-space:nowrap;-webkit-user-select:none;-moz-user-select:none;-ms-user-select:none;user-select:none;pointer-events:none;box-shadow:0 1px 3px rgba(0,0,0,.4)}.leaflet-tooltip.leaflet-interactive{cursor:pointer;pointer-events:auto}.leaflet-tooltip-bottom:before,.leaflet-tooltip-left:before,.leaflet-tooltip-right:before,.leaflet-tooltip-top:before{position:absolute;pointer-events:none;border:6px solid transparent;background:0 0;content:""}.leaflet-tooltip-bottom{margin-top:6px}.leaflet-tooltip-top{margin-top:-6px}.leaflet-tooltip-bottom:before,.leaflet-tooltip-top:before{left:50%;margin-left:-6px}.leaflet-tooltip-top:before{bottom:0;margin-bottom:-12px;border-top-color:#fff}.leaflet-tooltip-bottom:before{top:0;margin-top:-12px;margin-left:-6px;border-bottom-color:#fff}.leaflet-tooltip-left{margin-left:-6px}.leaflet-tooltip-right{margin-left:6px}.leaflet-tooltip-left:before,.leaflet-tooltip-right:before{top:50%;margin-top:-6px}.leaflet-tooltip-left:before{right:0;margin-right:-12px;border-left-color:#fff}.leaflet-tooltip-right:before{left:0;margin-left:-12px;border-right-color:#fff}@media print{.leaflet-control{-webkit-print-color-adjust:exact;print-color-adjust:exact}}</style>
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:      #0d1821;
+      --bg2:     #122030;
+      --bg3:     #1a2d40;
+      --border:  #1e3248;
+      --text:    #cddae8;
+      --dim:     #4a6680;
+      --accent:  #3d9cf0;
+      --orange:  #ff8c00;
+      --green:   #35c077;
+      --yellow:  #f5c842;
+      --red:     #e05555;
+      --crimson: #dc143c;
+    }
+
+    html, body {
+      height: 100%; font-family: 'Segoe UI', system-ui, sans-serif;
+      background: var(--bg); color: var(--text); overflow: hidden;
+    }
+
+    /* ── LAYOUT ─────────────────────────────── */
+    .app  { display: flex; flex-direction: column; height: 100vh; height: 100dvh; }
+    .main { display: flex; flex: 1; overflow: hidden; }
+    #map  { flex: 1; background: var(--bg); min-width: 0; }
+
+    /* ── HEADER ─────────────────────────────── */
+    .header {
+      display: flex; align-items: center; gap: 14px;
+      padding: 8px 18px; background: var(--bg2);
+      border-bottom: 1px solid var(--border);
+      flex-shrink: 0; min-height: 50px;
+    }
+    .h-title { font-size: 14px; font-weight: 700; color: var(--accent); }
+    .h-sub   { font-size: 10px; color: var(--dim); margin-top: 1px; }
+    .h-badge {
+      display: none; background: var(--orange); color: #000;
+      font-size: 11px; font-weight: 700; padding: 1px 7px;
+      border-radius: 9px; margin-left: 6px; vertical-align: middle;
+    }
+    .h-badge.ctr-active { background: #1a7fd4; color: #fff; }
+    .atc-link-btn {
+      margin-left: 10px; background: rgba(61,156,240,.12);
+      border: 1px solid var(--accent); border-radius: 5px;
+      padding: 5px 12px; font-size: 11px; font-weight: 700;
+      color: var(--accent); text-decoration: none; white-space: nowrap;
+      transition: background .15s;
+    }
+    .atc-link-btn:hover { background: rgba(61,156,240,.25); }
+    .h-tower {
+      margin-left: auto; background: #0a1929;
+      border: 1px solid #183a5c; border-radius: 5px;
+      padding: 5px 11px; font-size: 11px; color: #60a8e8;
+      white-space: nowrap; line-height: 1.5;
+    }
+    .tower-dot {
+      display: inline-block; width: 7px; height: 7px; border-radius: 50%;
+      background: var(--green); box-shadow: 0 0 5px var(--green);
+      margin-right: 5px; vertical-align: middle;
+    }
+    .offline-dot {
+      display: none; width: 7px; height: 7px; border-radius: 50%;
+      background: var(--yellow); box-shadow: 0 0 5px var(--yellow);
+      margin-right: 5px; vertical-align: middle;
+    }
+
+    /* ── SIDEBAR ─────────────────────────────── */
+    .sidebar {
+      width: 375px; flex-shrink: 0; background: var(--bg2);
+      border-left: 1px solid var(--border);
+      display: flex; flex-direction: column; overflow: hidden;
+    }
+    .sb-scroll { flex: 1; overflow-y: auto; overflow-x: hidden; }
+    .sb-scroll::-webkit-scrollbar { width: 4px; }
+    .sb-scroll::-webkit-scrollbar-track { background: var(--bg); }
+    .sb-scroll::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+    /* ── PANELS ──────────────────────────────── */
+    .panel { padding: 12px 15px; border-bottom: 1px solid var(--border); }
+    .p-head {
+      display: flex; align-items: center; gap: 7px;
+      margin-bottom: 11px; cursor: pointer; user-select: none;
+    }
+    .p-head.nocursor { cursor: default; }
+    .p-title {
+      font-size: 10.5px; font-weight: 700; text-transform: uppercase;
+      letter-spacing: .07em; color: var(--accent);
+    }
+    .p-arrow { margin-left: auto; color: var(--dim); font-size: 11px; }
+    .p-body.collapsed { display: none; }
+
+    /* ── FORMS ───────────────────────────────── */
+    .fg { margin-bottom: 8px; }
+    .fg:last-child { margin-bottom: 0; }
+    label {
+      display: block; font-size: 10px; font-weight: 600;
+      text-transform: uppercase; letter-spacing: .06em;
+      color: var(--dim); margin-bottom: 3px;
+    }
+    input[type="text"], input[type="number"],
+    input[type="date"], input[type="time"], input[type="tel"] {
+      width: 100%; padding: 6px 9px; background: var(--bg);
+      border: 1px solid var(--border); border-radius: 4px;
+      color: var(--text); font-size: 12px; font-family: inherit;
+    }
+    input:focus { outline: none; border-color: var(--accent); }
+    .row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 7px; }
+
+    /* ── CTR COORDINATION REMINDER ──────────── */
+    .ctr-warn {
+      display: none; background: #0a1520; border: 2px solid var(--accent);
+      border-radius: 5px; padding: 9px 11px; margin-top: 9px;
+      font-size: 11.5px; color: #88c8ff; line-height: 1.55; font-weight: 500;
+    }
+    .ctr-warn-title {
+      font-size: 12px; font-weight: 700; color: var(--accent);
+      margin-bottom: 5px; letter-spacing: .02em;
+    }
+
+    /* ── CELL TAGS ───────────────────────────── */
+    .cells-box {
+      background: var(--bg); border: 1px solid var(--border);
+      border-radius: 4px; padding: 7px; min-height: 42px; line-height: 1.9;
+    }
+    .cell-tag {
+      display: inline-flex; align-items: center; gap: 3px;
+      background: #0e2a45; border: 1px solid var(--accent);
+      border-radius: 3px; padding: 1px 6px; margin: 2px;
+      font-size: 11px; font-weight: 700; color: var(--accent);
+      cursor: pointer; transition: background .1s;
+    }
+    .cell-tag.ctr {
+      background: #071a2e; border-color: #1a7fd4; color: #88c8ff;
+    }
+    .cell-tag:hover { opacity: .75; }
+    .cell-tag .lm { font-weight: 400; opacity: .65; font-size: 10px; }
+    .cell-tag .rm { color: var(--red); font-size: 14px; line-height: 1; margin-left: 2px; }
+    .hint { color: var(--dim); font-size: 11px; font-style: italic; }
+
+    /* ── BUTTONS ─────────────────────────────── */
+    .btn {
+      display: inline-flex; align-items: center; justify-content: center; gap: 5px;
+      width: 100%; padding: 7px 12px; border: none; border-radius: 4px;
+      font-size: 12px; font-weight: 600; font-family: inherit;
+      cursor: pointer; transition: opacity .15s, background .15s; margin-top: 7px;
+    }
+    .btn:disabled { opacity: .35; cursor: not-allowed; }
+    .btn-blue   { background: #184f9e; color: #fff; }
+    .btn-blue:hover:not(:disabled)   { background: #1f66c8; }
+    .btn-green  { background: #0b3520; border: 1px solid #1a5f38; color: var(--green); }
+    .btn-green:hover:not(:disabled)  { background: #0f4028; }
+    .btn-orange { background: #361800; border: 1px solid #6e3500; color: var(--orange); }
+    .btn-orange:hover:not(:disabled) { background: #3f1e00; }
+    .btn-ghost  { background: transparent; border: 1px solid var(--border); color: var(--dim); }
+    .btn-ghost:hover:not(:disabled)  { border-color: var(--accent); color: var(--accent); }
+    .btn2 { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-top: 7px; }
+    .btn2 .btn { margin-top: 0; }
+
+    /* ── EMAIL OUTPUT ────────────────────────── */
+    .email-wrap { margin-top: 9px; display: none; }
+    .email-subj {
+      background: var(--bg); border: 1px solid var(--border);
+      border-radius: 4px 4px 0 0; border-bottom: none;
+      padding: 6px 9px; font-size: 10.5px; font-family: monospace;
+      color: var(--yellow); word-break: break-all;
+    }
+    .email-body {
+      background: var(--bg); border: 1px solid var(--border);
+      border-radius: 0 0 4px 4px; padding: 9px;
+      font-size: 10.5px; font-family: 'Courier New', monospace;
+      line-height: 1.65; color: #9cc0dc;
+      max-height: 300px; overflow-y: auto; white-space: pre-wrap; word-break: break-word;
+    }
+    .flash { display: none; text-align: center; font-size: 11px; padding: 3px; color: var(--green); }
+
+    /* ── PRESETS ─────────────────────────────── */
+    .preset-save-row {
+      display: flex; gap: 6px; margin-bottom: 9px;
+    }
+    .preset-save-row input { flex: 1; min-width: 0; }
+    .preset-save-btn {
+      padding: 6px 10px; font-size: 11px; font-weight: 700;
+      background: var(--bg3); border: 1px solid var(--accent);
+      color: var(--accent); border-radius: 4px; cursor: pointer;
+      white-space: nowrap; font-family: inherit; flex-shrink: 0;
+    }
+    .preset-save-btn:hover { background: var(--accent); color: #000; }
+    .preset-list { display: flex; flex-direction: column; gap: 1px; }
+    .preset-item {
+      display: flex; align-items: center; gap: 6px;
+      padding: 6px 0; border-bottom: 1px solid var(--border);
+    }
+    .preset-item:last-child { border-bottom: none; }
+    .preset-info { flex: 1; min-width: 0; }
+    .preset-name { font-size: 12px; font-weight: 600; color: var(--text); }
+    .preset-cells {
+      display: block; font-size: 10px; color: var(--dim);
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+      max-width: 220px;
+    }
+    .preset-actions { display: flex; gap: 4px; flex-shrink: 0; }
+    .p-btn {
+      padding: 3px 8px; font-size: 10.5px; border-radius: 3px;
+      border: 1px solid var(--border); background: var(--bg3);
+      color: var(--text); cursor: pointer; font-family: inherit;
+    }
+    .p-btn:hover { border-color: var(--accent); color: var(--accent); }
+    .p-btn.del:hover { border-color: var(--red); color: var(--red); }
+
+    /* ── SHARE URL ───────────────────────────── */
+    .share-url {
+      background: var(--bg); border: 1px solid var(--border);
+      border-radius: 4px; padding: 6px 9px; margin-top: 7px;
+      font-size: 10px; font-family: monospace; color: var(--dim);
+      word-break: break-all; display: none;
+    }
+
+    /* ── CHECKLIST ───────────────────────────── */
+    .cl { list-style: none; }
+    .cl li {
+      display: flex; gap: 10px; align-items: flex-start;
+      padding: 7px 0; border-bottom: 1px solid #131e2b;
+      font-size: 11.5px; line-height: 1.45;
+    }
+    .cl li:last-child { border-bottom: none; }
+    .cl-mark {
+      flex-shrink: 0; font-size: 10px; font-weight: 700;
+      color: var(--orange); padding-top: 1px; min-width: 32px;
+    }
+    .warn-box {
+      background: #1a1000; border: 1px solid #4a3000;
+      border-radius: 4px; padding: 7px 9px; font-size: 11px;
+      color: var(--yellow); margin-bottom: 10px; line-height: 1.5;
+    }
+    .tower-pill {
+      margin-top: 9px; padding: 7px 9px; background: var(--bg);
+      border-radius: 4px; font-size: 11px; color: #60a8e8; line-height: 1.6;
+    }
+
+    /* ── OFFLINE BANNER ──────────────────────── */
+    .offline-bar {
+      display: none; background: #1a1200; border-bottom: 1px solid #5a4000;
+      padding: 4px 16px; font-size: 11px; color: var(--yellow); text-align: center;
+      flex-shrink: 0;
+    }
+
+    /* ── LEAFLET OVERRIDES ───────────────────── */
+    /* as-labels */
+    .ax-wrap { background: transparent !important; border: none !important; }
+    .ax-col, .ax-row {
+      font-size: 10px; font-weight: 800; pointer-events: none;
+      color: #fff; text-shadow: 0 0 5px #000, 0 0 10px #000;
+      white-space: nowrap; line-height: 1;
+    }
+    .ax-col { transform: translate(-50%, 0);   text-align: center; letter-spacing: .04em; }
+    .ax-row { transform: translate(-100%, -50%); text-align: right;  padding-right: 4px; }
+    .ctip {
+      background: rgba(8,18,30,.95) !important; border: 1px solid var(--accent) !important;
+      color: #88c8ff !important; font-size: 12px !important; font-weight: 700 !important;
+      padding: 4px 9px !important; border-radius: 4px !important;
+      box-shadow: 0 2px 10px rgba(0,0,0,.6) !important;
+    }
+    .ctip.ctr-tip { border-color: #1a7fd4 !important; color: #88c8ff !important; }
+    .ctip::before { display: none !important; }
+    .leaflet-control-layers {
+      background: var(--bg2) !important; border: 1px solid var(--border) !important;
+      border-radius: 5px !important;
+    }
+    .leaflet-control-layers label,
+    .leaflet-control-layers span { color: var(--text) !important; font-size: 12px !important; }
+    .leaflet-bar a {
+      background: var(--bg2) !important; border-color: var(--border) !important;
+      color: var(--text) !important;
+    }
+    .leaflet-bar a:hover { background: var(--bg3) !important; }
+    .leaflet-control-attribution {
+      background: rgba(13,24,33,.7) !important; color: var(--dim) !important; font-size: 9px !important;
+    }
+    .leaflet-control-attribution a { color: var(--accent) !important; }
+
+    /* ── MY FLIGHTS CALENDAR ────────────────── */
+    .mf-nav {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 9px;
+    }
+    .mf-nav-btn {
+      background: var(--bg3); border: 1px solid var(--border); border-radius: 4px;
+      color: var(--dim); padding: 2px 10px; cursor: pointer; font-size: 14px;
+      transition: border-color .1s, color .1s;
+    }
+    .mf-nav-btn:hover { border-color: var(--accent); color: var(--accent); }
+    .mf-week-lbl { font-size: 11px; font-weight: 700; color: var(--text); }
+    .mf-day { margin-bottom: 7px; }
+    .mf-day-head {
+      font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .05em;
+      color: var(--dim); margin-bottom: 4px; padding-bottom: 3px;
+      border-bottom: 1px solid var(--border);
+    }
+    .mf-day-head.mf-today { color: var(--accent); }
+    .mf-item {
+      display: flex; align-items: center; gap: 7px;
+      padding: 5px 7px; border-radius: 4px; margin-bottom: 3px;
+      cursor: pointer; transition: opacity .15s;
+      border-left: 3px solid;
+    }
+    .mf-item:hover { opacity: .8; }
+    .mf-item.pending { background: rgba(245,200,66,.08); border-color: var(--yellow); }
+    .mf-item.cleared { background: rgba(53,192,119,.08); border-color: var(--green); }
+    .mf-item.denied  { background: rgba(224,85,85,.08);  border-color: var(--red); }
+    .mf-time { font-size: 11px; font-weight: 700; font-variant-numeric: tabular-nums; color: var(--text); white-space: nowrap; }
+    .mf-status { font-size: 9px; font-weight: 700; letter-spacing: .04em; }
+    .mf-status.pending { color: var(--yellow); }
+    .mf-status.cleared { color: var(--green); }
+    .mf-status.denied  { color: var(--red); }
+    .mf-cells { font-size: 10px; color: var(--dim); }
+    .mf-empty { font-size: 11px; color: var(--dim); font-style: italic; text-align: center; padding: 8px 0; }
+
+    /* ── DIGITAL TIME PICKER ────────────────── */
+    .tp-overlay {
+      position: fixed; inset: 0; background: rgba(0,0,0,.55); z-index: 9000;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .tp-box {
+      background: var(--bg2); border: 1px solid var(--accent); border-radius: 10px;
+      padding: 20px 24px; box-shadow: 0 8px 40px rgba(0,0,0,.7);
+      display: flex; flex-direction: column; align-items: center; gap: 14px;
+      min-width: 200px;
+    }
+    .tp-label {
+      font-size: 10px; font-weight: 700; text-transform: uppercase;
+      letter-spacing: .07em; color: var(--dim);
+    }
+    .tp-clock { display: flex; align-items: center; gap: 6px; }
+    .tp-unit { display: flex; flex-direction: column; align-items: center; gap: 4px; }
+    .tp-unit button {
+      background: var(--bg3); border: 1px solid var(--border); border-radius: 5px;
+      color: var(--text); width: 38px; height: 30px; font-size: 18px; line-height: 1;
+      cursor: pointer; font-family: inherit; transition: border-color .1s, background .1s;
+    }
+    .tp-unit button:hover { border-color: var(--accent); background: #1a3a5c; }
+    .tp-digit {
+      font-size: 38px; font-weight: 800; font-variant-numeric: tabular-nums;
+      color: var(--accent); width: 54px; text-align: center;
+      background: var(--bg); border: 1px solid var(--border); border-radius: 6px;
+      padding: 4px 0; letter-spacing: .04em; line-height: 1.1;
+    }
+    .tp-sep { font-size: 34px; font-weight: 800; color: var(--dim); margin-bottom: 2px; }
+    .tp-btns { display: flex; gap: 8px; width: 100%; }
+    .tp-ok {
+      flex: 1; padding: 8px 0; background: var(--accent); border: none; border-radius: 5px;
+      color: #000; font-size: 12px; font-weight: 700; cursor: pointer; font-family: inherit;
+    }
+    .tp-ok:hover { opacity: .85; }
+    .tp-cancel {
+      padding: 8px 14px; background: transparent; border: 1px solid var(--border);
+      border-radius: 5px; color: var(--dim); font-size: 12px; cursor: pointer;
+      font-family: inherit;
+    }
+    .tp-cancel:hover { border-color: var(--accent); color: var(--text); }
+
+    /* ── RESPONSIVE ──────────────────────────── */
+    @media (max-width: 820px) {
+      .main { flex-direction: column; }
+      .sidebar {
+        width: 100%; height: 56vh; border-left: none;
+        border-top: 1px solid var(--border);
+      }
+      #map { flex: none; height: 44vh; }
+    }
+    @media (max-width: 480px) {
+      .h-tower { display: none; }
+      .h-sub   { display: none; }
+      .panel   { padding: 10px 11px; }
+    }
+  </style>
+</head>
+
+<body>
+<div class="app">
+
+  <!-- OFFLINE BAR (shown when no network) -->
+  <div class="offline-bar" id="offlineBar">
+    Offline mode — map tiles from cache. Browse online first to cache new areas.
+  </div>
+
+  <!-- HEADER -->
+  <header class="header">
+    <div>
+      <div class="h-title">
+        Karpathos UAS Grid Tool
+        <span class="h-badge" id="hBadge">0</span>
+      </div>
+      <div class="h-sub">AFIS Coordination &nbsp;·&nbsp; 27.01–27.28 E / 35.40–35.92 N &nbsp;·&nbsp; 2 x 2 km cells</div>
+    </div>
+    <div class="h-tower">
+      <span class="tower-dot" id="towerDot"></span>
+      <span class="offline-dot" id="offlineDot"></span>
+      <strong>AFIS Karpathos</strong><br>
+      +30 22450 91120 &nbsp;·&nbsp; +30 22450 91047
+    </div>
+    <a href="atc.html" class="atc-link-btn">✈ ATC View →</a>
+  </header>
+
+  <!-- MAIN -->
+  <div class="main">
+    <div id="map"></div>
+
+    <aside class="sidebar">
+      <div class="sb-scroll">
+
+        <!-- Selected Cells -->
+        <div class="panel">
+          <div class="p-head nocursor" style="margin-bottom:9px;">
+            <span class="p-title">Selected Grid Cells</span>
+          </div>
+          <div class="cells-box" id="cellsBox">
+            <span class="hint">Click cells on the map to select them</span>
+          </div>
+
+          <!-- CTR COORDINATION REMINDER -->
+          <div class="ctr-warn" id="ctrWarn">
+            <div class="ctr-warn-title">AFIS COORDINATION — CTR / ATZ</div>
+            Selected sectors include CTR or ATZ airspace. Standing permission
+            granted for CTR operations. For ATZ: call AFIS before takeoff to
+            confirm. Tower: +30 22450 91120
+          </div>
+
+          <button class="btn btn-ghost" onclick="clearAll()">Clear All</button>
+        </div>
+
+        <!-- Flight Details -->
+        <div class="panel">
+          <div class="p-head" onclick="togglePanel(this)">
+            <span class="p-title">Flight Details</span>
+            <span class="p-arrow">▲</span>
+          </div>
+          <div class="p-body">
+            <div class="row2">
+              <div class="fg">
+                <label>Flight Date</label>
+                <input type="date" id="flightDate"/>
+              </div>
+              <div class="fg">
+                <label>Max Altitude (ft AGL)</label>
+                <input type="number" id="maxAlt" value="400" min="10" max="400"/>
+              </div>
+            </div>
+            <div class="row2">
+              <div class="fg">
+                <label>Window Start (UTC)</label>
+                <input type="time" id="timeFrom" readonly onclick="openPicker('timeFrom','Window Start (UTC)')" style="cursor:pointer"/>
+              </div>
+              <div class="fg">
+                <label>Window End (UTC)</label>
+                <input type="time" id="timeTo" readonly onclick="openPicker('timeTo','Window End (UTC)')" style="cursor:pointer"/>
+              </div>
+            </div>
+            <div class="fg">
+              <label>Omschrijving / doel vlucht</label>
+              <textarea id="flightPurpose" rows="2" placeholder="Bijv. filmopname kust, inspectie windmolens…" style="width:100%;resize:vertical;"></textarea>
+            </div>
+            <button class="btn btn-blue" onclick="scheduleToATC()" style="margin-top:8px;">
+              📅 Vlucht inplannen voor ATC
+            </button>
+            <div id="scheduleFlash" class="flash" style="display:none">✓ Vlucht ingepland — zichtbaar in ATC View</div>
+          </div>
+        </div>
+
+        <!-- My Flights Calendar -->
+        <div class="panel" id="myFlightsPanel">
+          <div class="p-head" onclick="togglePanel(this)">
+            <span class="p-title">My Flights</span>
+            <span class="p-arrow">▲</span>
+          </div>
+          <div class="p-body">
+            <div class="mf-nav">
+              <button class="mf-nav-btn" onclick="mfPrevWeek()">‹</button>
+              <span class="mf-week-lbl" id="mfWeekLbl"></span>
+              <button class="mf-nav-btn" onclick="mfNextWeek()">›</button>
+            </div>
+            <div id="mfList"></div>
+            <button class="btn btn-ghost" style="margin-top:8px;font-size:11px;" onclick="renderMyFlights()">↻ Refresh</button>
+          </div>
+        </div>
+
+        <!-- ATC Email & KML -->
+        <div class="panel">
+          <div class="p-head" onclick="togglePanel(this)">
+            <span class="p-title">ATC Email &amp; KML Export</span>
+            <span class="p-arrow">▲</span>
+          </div>
+          <div class="p-body">
+            <button class="btn btn-blue" onclick="generateEmail()">Generate ATC Coordination Email</button>
+
+            <div class="email-wrap" id="emailWrap">
+              <div class="email-subj" id="emailSubj"></div>
+              <div class="email-body" id="emailBody"></div>
+              <div class="btn2">
+                <button class="btn btn-green" onclick="copyEmail()">Copy to clipboard</button>
+              </div>
+              <div class="flash" id="flashOk">Copied to clipboard</div>
+            </div>
+
+            <button class="btn btn-orange" onclick="downloadKML()" style="margin-top:10px;">
+              Download KML
+            </button>
+            <button class="btn" onclick="exportMap()" style="margin-top:7px;background:#1e3a4a;border-color:#2a5a6e;color:#88c8ff;">
+              📷 Export kaart als PNG
+            </button>
+            <button class="btn" onclick="exportReferenceMap()" style="margin-top:5px;background:#1a2e1a;border-color:#2a5a2e;color:#7ecb7e;">
+              🗺 Export referentiekaart (9:16)
+            </button>
+          </div>
+        </div>
+
+        <!-- Flight Plan Presets -->
+        <div class="panel">
+          <div class="p-head" onclick="togglePanel(this)">
+            <span class="p-title">Flight Plan Presets</span>
+            <span class="p-arrow">▲</span>
+          </div>
+          <div class="p-body">
+            <div class="preset-save-row">
+              <input type="text" id="presetName" placeholder="e.g. Lefkos Morning"/>
+              <button class="preset-save-btn" onclick="savePreset()">Save current</button>
+            </div>
+            <div class="preset-list" id="presetList">
+              <span class="hint">No presets saved yet</span>
+            </div>
+
+            <!-- Share link -->
+            <div style="margin-top:10px;">
+              <label>Shareable Link (current selection)</label>
+              <div class="share-url" id="shareUrl"></div>
+              <button class="btn btn-ghost" onclick="copyLink()" style="margin-top:5px;font-size:11px;">Copy Link</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Pilot & UAS Information -->
+        <div class="panel">
+          <div class="p-head" onclick="togglePanel(this)">
+            <span class="p-title">Pilot &amp; UAS Information</span>
+            <span class="p-arrow">▼</span>
+          </div>
+          <div class="p-body collapsed">
+            <div class="fg">
+              <label>Full Name</label>
+              <input type="text" id="pilotName" value="Lucas J Joshua"/>
+            </div>
+            <div class="row2">
+              <div class="fg">
+                <label>Remote Pilot ID</label>
+                <input type="text" id="pilotId" value="NLD-RP-xr5e299azy4l"/>
+              </div>
+              <div class="fg">
+                <label>Operator ID (RDW)</label>
+                <input type="text" id="operatorId" value="NLDm25zsa9ceyqck-3sd"/>
+              </div>
+            </div>
+            <div class="row2">
+              <div class="fg">
+                <label>UAS Model</label>
+                <input type="text" id="uasModel" value="DJI Air 3S"/>
+              </div>
+              <div class="fg">
+                <label>UAS Serial No.</label>
+                <input type="text" id="uasSerial" value="1581F895C24CG0078LRU"/>
+              </div>
+            </div>
+            <div class="fg">
+              <label>Mobile (on-site)</label>
+              <input type="tel" id="pilotPhone" value="+31 649265800"/>
+            </div>
+          </div>
+        </div>
+
+        <!-- HCAA Procedures -->
+        <div class="panel">
+          <div class="p-head" onclick="togglePanel(this)">
+            <span class="p-title">HCAA Mandatory Procedures</span>
+            <span class="p-arrow">▲</span>
+          </div>
+          <div class="p-body">
+            <div class="warn-box">
+              Required by the Hellenic Civil Aviation Authority (HCAA) for all UAS operations within the Karpathos ATZ / CTR.
+            </div>
+            <ul class="cl">
+              <li>
+                <span class="cl-mark">CALL</span>
+                <span><strong>Initial coordination call:</strong> Contact the tower in advance to announce the planned operation and confirm airspace availability for the requested sectors.</span>
+              </li>
+              <li>
+                <span class="cl-mark">CALL</span>
+                <span><strong>Pre-flight clearance call:</strong> Call the tower immediately before commencing flight to receive final sector clearance and check for active traffic.</span>
+              </li>
+              <li>
+                <span class="cl-mark">STBY</span>
+                <span><strong>Mobile standby:</strong> Keep your mobile phone on standby throughout the entire operation — the tower may need to reach you at any moment.</span>
+              </li>
+              <li>
+                <span class="cl-mark">LAND</span>
+                <span><strong>Immediate safe landing:</strong> Land immediately upon detecting or being informed of any manned aircraft or helicopter approaching the area.</span>
+              </li>
+              <li>
+                <span class="cl-mark">CALL</span>
+                <span><strong>Post-flight notification:</strong> Call the tower immediately after landing to confirm airspace is clear and the operation is complete.</span>
+              </li>
+            </ul>
+            <div class="tower-pill">
+              Tower direct lines:<br>
+              <strong>+30 22450 91120</strong> &nbsp;·&nbsp; <strong>+30 22450 91047</strong>
+            </div>
+          </div>
+        </div>
+
+      </div><!-- /sb-scroll -->
+    </aside>
+  </div><!-- /main -->
+</div><!-- /app -->
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"
+  onerror="this._failed=true"></script>
+<!-- html2canvas removed — map export now uses direct canvas compositing -->
+<script>
+/* Leaflet JS fallback chain — try jsdelivr, then unpkg */
+(function(){
+  function tryLoad(src, cb){
+    var s=document.createElement('script');
+    s.src=src;
+    s.onload=cb;
+    s.onerror=cb;
+    document.head.appendChild(s);
+  }
+  if(!window.L){
+    tryLoad('https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.min.js', function(){
+      if(!window.L){
+        tryLoad('https://unpkg.com/leaflet@1.9.4/dist/leaflet.js', function(){
+          if(!window.L){
+            var el=document.getElementById('map');
+            if(el) el.innerHTML='<div style="color:#ff4444;padding:24px;font-family:monospace">MAP FAILED TO LOAD<br>No internet connection and Leaflet JS not cached.<br>Open this page online at least once to enable offline use.</div>';
+          }
+        });
+      }
+    });
+  }
+})();
+</script>
+<script>
+'use strict';
+
+// ════════════════════════════════════════════════════
+//  GRID CONSTANTS
+// ════════════════════════════════════════════════════
+const B  = { west:27.01, east:27.28, south:35.40, north:35.92 };
+const DX = 0.022;
+const DY = 0.018;
+const COLS = Math.ceil((B.east - B.west) / DX);   // 13 → A–M
+const ROWS = Math.ceil((B.north - B.south) / DY);  // 29
+const colLetter = i => String.fromCharCode(65 + i);
+
+// ════════════════════════════════════════════════════
+//  CTR / AIRPORT WARNING ZONES
+//  Red/crimson highlight + warning banner when selected.
+//  Includes: AOK direct area, approach corridor, Finiki CTR boundary.
+// ════════════════════════════════════════════════════
+const CTR_ZONES = new Set([
+  // Karpathos Airport (AOK) direct zone + runway (rows 27-29)
+  'F27','G27','H27','I27',
+  'E28','F28','G28','H28','I28',
+  'E29','F29','G29','H29',
+  // Extended approach corridor (rows 25-26)
+  'F25','G25','H25',
+  'E26','F26','G26','H26','I26',
+  // Finiki / Arkasa CTR western boundary (user specified)
+  'C22','D22','C23','D23',
+]);
+
+// ════════════════════════════════════════════════════
+//  LANDMARK MAP
+// ════════════════════════════════════════════════════
+const LM = {
+  // Kolommen hernoemd: oud C→A, D→B, E→C, F→D, G→E, H→F, I→G, J→H, K→I
+  'C1':'Saria Is. (N)','D1':'Saria Is. (N)','E1':'Saria Is. (N)',
+  'F1':'Saria Is. (N)','G1':'Saria Is. (N)','H1':'Saria Is. (N)',
+  'C2':'Saria Island', 'D2':'Saria Island', 'E2':'Saria Island',
+  'F2':'Saria Island', 'G2':'Saria Island', 'H2':'Saria Island',
+  'D3':'Saria Is. (S)','E3':'Saria Is. (S)','F3':'Saria Is. (S)','G3':'Saria Is. (S)',
+  'E4':'Tristomo Bay', 'F4':'Tristomo Bay', 'G4':'Tristomo Bay',
+  'E5':'Karpathos Strait','F5':'Karpathos Strait','G5':'Karpathos Strait',
+  'F7':'North Karpathos','G7':'North Coast',
+  'F8':'Diafani Bay',  'G8':'Diafani Bay',
+  'G9':'Diafani Coast','H9':'Diafani Port',
+  'H10':'NE Coast',
+  'F11':'Olympos (W)','G11':'Olympos Village','H11':'Olympos Village','I11':'East Coast (N)',
+  'F13':'Avlona Valley','G13':'Avlona Valley','H13':'East Coast',
+  'F14':'Central Highlands','G14':'Avlona Area',
+  'F15':'Central Karpathos','G15':'Central Karpathos',
+  'G16':'Kyra Panagia Beach','H16':'Kyra Panagia Beach','I16':'East Coast (C)',
+  'G18':'Apella Beach (N)','H18':'Apella Beach',
+  'G19':'Apella Beach',    'H19':'Apella Beach (S)',
+  'C18':'Spoa Village','D18':'Spoa Area',
+  'A19':'Mesochori Village','B19':'Mesochori Area',
+  'A20':'Lefkos (N)',
+  'A21':'Lefkos Beach',
+  'D20':'Othos Area', 'E20':'Othos Village',
+  'D21':'Piles Village','E21':'Piles Area',
+  'F21':'Volada Village','G21':'Central Valley','F22':'Aperi Village',
+  'A22':'Finiki Bay [CTR]','B22':'Arkasa Village [CTR]',
+  'A23':'Finiki Area [CTR]','B23':'Arkasa Area [CTR]',
+  'H22':'Achata Beach','I22':'Achata (N)',
+  'G23':'Pigadia Town','H23':'Pigadia Harbour','I23':'Pigadia (E)',
+  'D24':'Menetes Village','E24':'Menetes Area',
+  'I24':'Amopi Beach',
+  'F25':'South Highlands [CTR]','G25':'South Valley','H25':'SE Coast','I25':'South Coast',
+  'D25':'Airport Approach [CTR]','E25':'Airport Approach [CTR]',
+  'C26':'CTR Boundary','D26':'CTR Boundary','E26':'Airport Corridor [CTR]',
+  'F26':'Airport Corridor [CTR]','G26':'CTR Boundary',
+  'D27':'Airport Area [CTR]','E27':'Airport Zone [CTR]',
+  'F27':'Airport East [CTR]','G27':'Airport East [CTR]',
+  'C28':'Airport CTR','D28':'Airport Area (AOK)','E28':'Karpathos Airport (AOK)',
+  'F28':'Airport East','G28':'Airport CTR',
+  'C29':'South CTR','D29':'Runway South End','E29':'Airport South (AOK)',
+  'F29':'South Cape','G29':'South CTR',
+};
+
+// ════════════════════════════════════════════════════
+//  STATE
+// ════════════════════════════════════════════════════
+const selected = new Set();
+const cells    = {};
+
+// ════════════════════════════════════════════════════
+//  MAP
+// ════════════════════════════════════════════════════
+const map = L.map('map',{ center:[35.66,27.145], zoom:10, zoomSnap:0.25, zoomDelta:0.5 });
+
+const osmTile = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{
+  attribution:'© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+  maxZoom:19, crossOrigin:'anonymous'
+});
+const satTile = L.tileLayer(
+  'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
+  { attribution:'Tiles © Esri', maxZoom:19, crossOrigin:'anonymous' }
+);
+osmTile.addTo(map);
+
+// Overlay layer groups (defined here, populated after grid build below)
+const labelsLayer = L.layerGroup().addTo(map);   // cell labels — ON by default
+const airLayer    = L.layerGroup().addTo(map);   // CTR / no-fly zones — ON by default
+const naturaLayer = L.layerGroup().addTo(map);   // Natura 2000 polygons — ON by default
+
+L.control.layers(
+  {'Street Map':osmTile, 'Satellite':satTile},
+  {'Cell labels':labelsLayer, 'Airspace zones':airLayer, 'Natura 2000':naturaLayer},
+  {position:'topleft', collapsed:false}
+).addTo(map);
+
+// Reset view control
+const ResetCtrl = L.Control.extend({
+  onAdd(){
+    const b=L.DomUtil.create('button','leaflet-bar-part');
+    b.innerHTML='[ ]'; b.title='Reset view to Karpathos';
+    b.style.cssText='background:#122030;border:none;color:#cddae8;padding:0 7px;font-size:11px;font-weight:700;cursor:pointer;line-height:26px;height:26px;';
+    L.DomEvent.on(b,'click',L.DomEvent.stop);
+    L.DomEvent.on(b,'click',()=>map.fitBounds([[B.south,B.west+2*DX],[B.north,B.east-2*DX]],{padding:[8,8]}));
+    const c=L.DomUtil.create('div','leaflet-bar'); c.appendChild(b); return c;
+  }
+});
+new ResetCtrl({position:'topleft'}).addTo(map);
+// Fit to active columns C–K (skip 2 each side)
+map.fitBounds([[B.south, B.west+2*DX],[B.north, B.east-2*DX]],{padding:[8,8]});
+
+// ════════════════════════════════════════════════════
+//  STYLES
+// ════════════════════════════════════════════════════
+const S_NORM    = {color:'#3d9cf0',weight:.8, fillColor:'#3d9cf0',fillOpacity:.07,opacity:.4};
+const S_HOVR    = {color:'#7dc8ff',weight:1.2,fillColor:'#7dc8ff',fillOpacity:.2, opacity:.85};
+const S_SEL     = {color:'#ff9010',weight:2,  fillColor:'#ff8c00',fillOpacity:.4, opacity:1};
+// CTR/ATZ: pilot has permission — use accent blue, not alarm red
+const S_CTR_H   = {color:'#5ab8ff',weight:1.5,fillColor:'#3d9cf0',fillOpacity:.15,opacity:.8};
+const S_SEL_CTR = {color:'#3d9cf0',weight:2.5,fillColor:'#1a7fd4',fillOpacity:.45,opacity:1};
+
+// ════════════════════════════════════════════════════
+//  BUILD GRID  (cols A–I = 9 cols × 29 rows, intern offset c=2..10 → label A..I)
+// ════════════════════════════════════════════════════
+for(let r=0;r<ROWS;r++){
+  for(let c=2;c<COLS-2;c++){
+    const id = colLetter(c-2)+(r+1);
+    const cN = B.north - r*DY;
+    const cS = Math.max(B.north-(r+1)*DY, B.south);
+    const cW = B.west  + c*DX;
+    const cE = Math.min(B.west +(c+1)*DX, B.east);
+    const lm   = LM[id]||null;
+    const isCTR= CTR_ZONES.has(id);
+
+    // Base style: CTR/ATZ zones get a subtle blue tint (permission granted)
+    const baseStyle = isCTR
+      ? {color:'#1a7fd4',weight:.8,fillColor:'#1a7fd4',fillOpacity:.05,opacity:.4}
+      : {...S_NORM};
+
+    const rect = L.rectangle([[cS,cW],[cN,cE]], baseStyle);
+
+    // Tooltip
+    const tipContent = lm
+      ? `<b>${id}</b><br><span style="font-weight:400;font-size:10px;color:${isCTR?'#ff9999':'#7dc8ff'}">${lm}</span>`
+      : `<b>${id}</b>`;
+    rect.bindTooltip(tipContent,{
+      direction:'top', sticky:true,
+      className:'ctip'+(isCTR?' ctr-tip':''), opacity:1
+    });
+
+    rect.on('mouseover',function(){
+      if(!selected.has(id)) this.setStyle(isCTR ? S_CTR_H : S_HOVR);
+    });
+    rect.on('mouseout',function(){
+      if(!selected.has(id)) this.setStyle(baseStyle);
+    });
+    rect.on('click',()=>toggleCell(id));
+    rect.addTo(map);
+
+    cells[id]={rect, bounds:{n:cN,s:cS,w:cW,e:cE}, lm, isCTR, baseStyle};
+  }
+}
+
+// ── As-labels: letters bovenaan (A–I), cijfers links (1–29) ──
+// Geplaatst als Leaflet markers zodat ze meebewegen met de kaart.
+const axisLayer = L.layerGroup().addTo(map);
+
+function buildAxisLabels(){
+  axisLayer.clearLayers();
+  const mkIcon = (html, cls) => L.divIcon({className: cls, html, iconSize:null, iconAnchor:[0,0]});
+
+  // Kolomletters bovenaan (A–I = c offset 2..10)
+  for(let c=2;c<COLS-2;c++){
+    const letter = colLetter(c-2);
+    const lon    = B.west + c*DX + DX/2;
+    const lat    = B.north + DY*0.35;
+    L.marker([lat, lon], {
+      icon: mkIcon(`<div class="ax-col">${letter}</div>`, 'ax-wrap'),
+      interactive: false, keyboard: false
+    }).addTo(axisLayer);
+  }
+
+  // Rijnummers links (1–29)
+  for(let r=0;r<ROWS;r++){
+    const num = r+1;
+    const lat = B.north - r*DY - DY/2;
+    const lon = B.west  + 2*DX - DX*0.12;
+    L.marker([lat, lon], {
+      icon: mkIcon(`<div class="ax-row">${num}</div>`, 'ax-wrap'),
+      interactive: false, keyboard: false
+    }).addTo(axisLayer);
+  }
+}
+
+buildAxisLabels();
+
+// Als labelsLayer (layer-control toggle "Cell labels") aan/uit wordt gezet,
+// werkt dat nu als aan/uit voor de as-labels.
+function syncLabels(){
+  if(map.hasLayer(labelsLayer)){
+    if(!map.hasLayer(axisLayer)) axisLayer.addTo(map);
+  } else {
+    if(map.hasLayer(axisLayer)) map.removeLayer(axisLayer);
+  }
+}
+map.on('overlayadd',    e => { if(e.layer===labelsLayer) syncLabels(); });
+map.on('overlayremove', e => { if(e.layer===labelsLayer) syncLabels(); });
+
+// ════════════════════════════════════════════════════
+//  AIRSPACE + NATURA 2000 OVERLAYS
+//  Source: exact KMZ data from user's Google Maps layers.
+// ════════════════════════════════════════════════════
+
+// ── Natura 2000 (exact polygons from Habitats & Birds Directive KMZ) ──
+const KENTRIKI=[[35.63482,27.1566],[35.6352,27.15603],[35.63548,27.15572],[35.63556,27.1555],[35.63525,27.15491],[35.63486,27.15496],[35.63508,27.1541],[35.63513,27.1528],[35.63473,27.15202],[35.63433,27.15211],[35.63404,27.15142],[35.63419,27.15084],[35.63434,27.15128],[35.635,27.15025],[35.63482,27.14902],[35.63389,27.14807],[35.6337,27.14638],[35.63435,27.14531],[35.63446,27.14451],[35.63458,27.14359],[35.63486,27.14281],[35.63488,27.14248],[35.63325,27.14225],[35.63369,27.14054],[35.63259,27.13882],[35.63213,27.13698],[35.63084,27.13522],[35.63083,27.13347],[35.62897,27.13135],[35.62776,27.12854],[35.62756,27.12767],[35.62951,27.12516],[35.62819,27.12242],[35.62568,27.11991],[35.62601,27.11713],[35.62701,27.1145],[35.62538,27.11287],[35.62327,27.11289],[35.62122,27.10954],[35.62089,27.10613],[35.62218,27.10541],[35.62243,27.10443],[35.62134,27.10332],[35.62057,27.1024],[35.6182,27.10302],[35.61754,27.10302],[35.617,27.10211],[35.61714,27.10186],[35.61697,27.10128],[35.61636,27.10077],[35.61706,27.10044],[35.61821,27.10038],[35.6175,27.09909],[35.61745,27.09877],[35.61868,27.09849],[35.62021,27.09475],[35.62175,27.09123],[35.62247,27.0894],[35.62213,27.08727],[35.62235,27.08617],[35.6222,27.08255],[35.62049,27.08185],[35.61874,27.08167],[35.61653,27.08148],[35.61407,27.08109],[35.61276,27.07969],[35.61131,27.07622],[35.60876,27.07075],[35.60755,27.0678],[35.60581,27.06532],[35.60354,27.0636],[35.60189,27.06143],[35.59968,27.05766],[35.59886,27.05511],[35.59786,27.05412],[35.59668,27.05415],[35.59519,27.05504],[35.59349,27.05636],[35.59173,27.05837],[35.59032,27.06007],[35.58877,27.06077],[35.58659,27.06122],[35.58541,27.06216],[35.58455,27.06419],[35.58286,27.0679],[35.58237,27.07043],[35.58138,27.07141],[35.5799,27.07297],[35.57827,27.07365],[35.57678,27.07324],[35.5746,27.0721],[35.57286,27.07255],[35.56919,27.07543],[35.56693,27.07761],[35.56615,27.08117],[35.56443,27.08513],[35.56268,27.08722],[35.56026,27.08912],[35.55898,27.09021],[35.559,27.09418],[35.55881,27.09771],[35.55801,27.10042],[35.55577,27.10298],[35.55323,27.10422],[35.55147,27.10737],[35.55154,27.10847],[35.55198,27.10932],[35.55257,27.10968],[35.55275,27.11194],[35.55298,27.11421],[35.55302,27.1161],[35.55211,27.11698],[35.55179,27.11904],[35.55149,27.12053],[35.55197,27.1221],[35.55157,27.12417],[35.55148,27.12549],[35.5521,27.12682],[35.55207,27.12778],[35.55147,27.12937],[35.55219,27.13218],[35.55195,27.13283],[35.55197,27.1339],[35.55154,27.13546],[35.5515,27.13696],[35.55101,27.13799],[35.55092,27.13956],[35.55067,27.13962],[35.5508,27.14015],[35.55107,27.14061],[35.55082,27.14083],[35.55103,27.14096],[35.5509,27.14121],[35.55096,27.14148],[35.55048,27.14145],[35.5505,27.1417],[35.55141,27.14266],[35.55054,27.14252],[35.54966,27.1423],[35.54893,27.14242],[35.54856,27.14275],[35.54723,27.14366],[35.54732,27.14494],[35.54624,27.14662],[35.54489,27.14745],[35.54493,27.14781],[35.54601,27.14858],[35.54584,27.14949],[35.54545,27.14975],[35.54574,27.15036],[35.54622,27.15094],[35.54616,27.15189],[35.54627,27.15241],[35.54673,27.15301],[35.547,27.15389],[35.54763,27.15487],[35.54756,27.15654],[35.5472,27.15743],[35.54745,27.15786],[35.54854,27.15754],[35.54956,27.15884],[35.55014,27.15899],[35.55087,27.15896],[35.55144,27.15915],[35.55209,27.15893],[35.55224,27.15871],[35.55254,27.15927],[35.55226,27.15931],[35.55212,27.15956],[35.55261,27.15969],[35.55294,27.15954],[35.55325,27.15975],[35.55348,27.15997],[35.55339,27.16022],[35.55334,27.16069],[35.55362,27.16045],[35.5532,27.16115],[35.55306,27.16144],[35.55277,27.16188],[35.55362,27.16332],[35.55411,27.16374],[35.55407,27.16449],[35.55405,27.16538],[35.55401,27.16704],[35.55337,27.16762],[35.55306,27.16956],[35.55346,27.1705],[35.55398,27.17036],[35.55472,27.17067],[35.55473,27.17095],[35.55445,27.17144],[35.55433,27.17211],[35.55327,27.1724],[35.55252,27.17286],[35.55099,27.17347],[35.54939,27.17424],[35.54939,27.17528],[35.54827,27.17615],[35.5468,27.17652],[35.5457,27.17656],[35.5443,27.17622],[35.54366,27.17543],[35.54308,27.17498],[35.54223,27.17292],[35.5411,27.1739],[35.54028,27.17464],[35.54017,27.17611],[35.53959,27.17771],[35.53894,27.17734],[35.53768,27.17639],[35.53727,27.17653],[35.53737,27.17735],[35.53784,27.17785],[35.53679,27.17912],[35.53585,27.17987],[35.53494,27.18092],[35.53454,27.1817],[35.53415,27.18482],[35.53351,27.18725],[35.53298,27.19066],[35.53247,27.19316],[35.5328,27.1941],[35.53262,27.19562],[35.53252,27.1996],[35.53253,27.20099],[35.5307,27.20688],[35.53357,27.21379],[35.53624,27.21655],[35.54046,27.21825],[35.54449,27.22007],[35.54736,27.21964],[35.55113,27.21739],[35.55512,27.21205],[35.55899,27.20868],[35.56455,27.20596],[35.5698,27.20564],[35.57367,27.20504],[35.57774,27.2013],[35.57922,27.20022],[35.58234,27.19742],[35.58476,27.19352],[35.58709,27.18928],[35.58868,27.18796],[35.58923,27.18506],[35.59102,27.1833],[35.59538,27.18175],[35.60007,27.17841],[35.60255,27.17279],[35.60494,27.16607],[35.6063,27.16443],[35.60782,27.16316],[35.60798,27.16126],[35.60867,27.15984],[35.6109,27.15915],[35.61317,27.1585],[35.61555,27.15729],[35.61925,27.16128],[35.62124,27.16445],[35.62189,27.166],[35.62363,27.16609],[35.62801,27.16417],[35.62985,27.16401],[35.63389,27.16128],[35.63356,27.16045],[35.63365,27.16011],[35.6338,27.15992],[35.63399,27.15957],[35.6341,27.1594],[35.63413,27.15888],[35.63404,27.15834],[35.63424,27.1582],[35.6344,27.15803],[35.63444,27.15755],[35.6345,27.15684],[35.63482,27.1566]];
+
+const VOREIA=[[35.91324,27.23243],[35.91397,27.22532],[35.91049,27.21908],[35.90787,27.21115],[35.90011,27.20699],[35.89422,27.20469],[35.88796,27.20471],[35.8827,27.20303],[35.88017,27.20019],[35.87447,27.19474],[35.8727,27.1905],[35.87171,27.18405],[35.86903,27.17987],[35.86475,27.17618],[35.85765,27.17548],[35.85348,27.17774],[35.84743,27.18372],[35.8444,27.18827],[35.83913,27.19112],[35.83349,27.19597],[35.83003,27.1962],[35.82591,27.19434],[35.82011,27.19192],[35.81815,27.1885],[35.81515,27.18348],[35.81554,27.17892],[35.81598,27.17117],[35.81327,27.16383],[35.81123,27.15922],[35.80627,27.15308],[35.79932,27.15322],[35.79395,27.15429],[35.7861,27.1537],[35.78017,27.15369],[35.77316,27.15191],[35.76764,27.15137],[35.7626,27.15053],[35.75834,27.15041],[35.75491,27.15027],[35.74863,27.15126],[35.74319,27.152],[35.73817,27.16058],[35.73898,27.16572],[35.73916,27.16592],[35.73943,27.16624],[35.73947,27.16684],[35.73954,27.16771],[35.73953,27.16797],[35.73934,27.16839],[35.73956,27.16874],[35.7398,27.16911],[35.7396,27.16983],[35.73982,27.17039],[35.73977,27.17079],[35.73979,27.17128],[35.74001,27.17178],[35.74025,27.17232],[35.74012,27.17268],[35.74028,27.17268],[35.74065,27.17266],[35.74068,27.17229],[35.74067,27.17196],[35.74077,27.17161],[35.7407,27.17094],[35.74078,27.17017],[35.74089,27.17065],[35.74116,27.17111],[35.74163,27.17128],[35.74214,27.17091],[35.74241,27.17043],[35.74254,27.17001],[35.74298,27.17012],[35.74303,27.17061],[35.74325,27.17114],[35.74332,27.17164],[35.74287,27.1718],[35.74243,27.17252],[35.74242,27.17301],[35.74271,27.17363],[35.74277,27.17407],[35.74254,27.17459],[35.74213,27.17459],[35.74216,27.17488],[35.74193,27.17516],[35.74146,27.17497],[35.7411,27.17508],[35.74091,27.17494],[35.74069,27.17481],[35.74043,27.17516],[35.74051,27.17548],[35.74054,27.17586],[35.74064,27.17619],[35.74066,27.17641],[35.74045,27.17689],[35.7404,27.17728],[35.74061,27.17744],[35.7408,27.17822],[35.74092,27.17919],[35.74145,27.18037],[35.74161,27.18121],[35.74108,27.18156],[35.74135,27.18143],[35.74198,27.18156],[35.74232,27.18135],[35.74267,27.18143],[35.74303,27.18178],[35.74275,27.18212],[35.74294,27.18239],[35.74302,27.18267],[35.74238,27.18298],[35.74214,27.18335],[35.74166,27.18386],[35.74114,27.18414],[35.74058,27.18477],[35.74048,27.18549],[35.74041,27.18602],[35.74099,27.18642],[35.74113,27.18559],[35.74191,27.18586],[35.74216,27.18625],[35.74231,27.18673],[35.7423,27.18693],[35.7424,27.18712],[35.74235,27.18759],[35.7427,27.18818],[35.74249,27.18851],[35.7421,27.18881],[35.7422,27.18922],[35.74219,27.18959],[35.74219,27.19062],[35.7421,27.19188],[35.74266,27.19255],[35.74288,27.19369],[35.74325,27.19416],[35.74334,27.19448],[35.7434,27.19468],[35.74349,27.19487],[35.74354,27.19524],[35.74379,27.19598],[35.74366,27.19634],[35.74374,27.1967],[35.74368,27.19706],[35.74375,27.19752],[35.74407,27.19793],[35.74403,27.19835],[35.74417,27.19874],[35.74394,27.19954],[35.74375,27.20005],[35.74402,27.2002],[35.74421,27.19992],[35.74462,27.19984],[35.74482,27.19974],[35.74482,27.2004],[35.74468,27.20092],[35.74459,27.20164],[35.74485,27.2019],[35.745,27.20224],[35.74487,27.20248],[35.74448,27.2029],[35.74438,27.2031],[35.74457,27.20363],[35.74469,27.20377],[35.74469,27.20405],[35.74492,27.20442],[35.74498,27.2047],[35.7451,27.20528],[35.74522,27.20544],[35.74526,27.20568],[35.74548,27.20583],[35.74574,27.2061],[35.74599,27.20657],[35.74587,27.20707],[35.74557,27.20757],[35.74574,27.20788],[35.74587,27.20841],[35.74606,27.20874],[35.74618,27.20892],[35.74612,27.20919],[35.74623,27.2095],[35.74576,27.20958],[35.74558,27.20992],[35.74577,27.21007],[35.74596,27.21043],[35.74602,27.21074],[35.74619,27.21077],[35.74634,27.21088],[35.74646,27.21134],[35.74614,27.21106],[35.74589,27.211],[35.74552,27.21161],[35.74591,27.21149],[35.74586,27.21172],[35.74565,27.2121],[35.74565,27.21251],[35.74553,27.21292],[35.74586,27.21325],[35.74633,27.21309],[35.74655,27.2135],[35.74653,27.21437],[35.74636,27.21468],[35.75115,27.2373],[35.75526,27.23697],[35.75984,27.23502],[35.7637,27.2317],[35.76778,27.23043],[35.77244,27.23126],[35.78836,27.23513],[35.79334,27.23927],[35.79815,27.24175],[35.80366,27.24289],[35.8098,27.243],[35.81574,27.24297],[35.82228,27.24511],[35.82712,27.24865],[35.83339,27.2495],[35.83852,27.24943],[35.8428,27.24929],[35.84938,27.25061],[35.85554,27.25013],[35.8599,27.24816],[35.8646,27.24771],[35.8689,27.24504],[35.87614,27.24337],[35.88078,27.24466],[35.8871,27.24643],[35.89256,27.24935],[35.89864,27.25166],[35.90458,27.25058],[35.90974,27.24433],[35.91241,27.23707],[35.91324,27.23243]];
+
+L.polygon(KENTRIKI,{color:'#5a9e2f',weight:2,fillColor:'#7CB342',fillOpacity:0.18,dashArray:'7 4',interactive:false})
+ .addTo(naturaLayer);
+
+L.polygon(VOREIA,{color:'#5a9e2f',weight:2,fillColor:'#7CB342',fillOpacity:0.15,dashArray:'7 4',interactive:false})
+ .addTo(naturaLayer);
+
+// ── No-fly zones (exact polygons from user KMZ) ──
+const CTR_POLY=[[35.42164,27.45083],[35.47072,27.44489],[35.51789,27.42732],[35.56134,27.39878],[35.5994,27.36037],[35.63063,27.31357],[35.65382,27.26018],[35.6681,27.20224],[35.67292,27.14199],[35.6681,27.08174],[35.65382,27.0238],[35.63063,26.97041],[35.5994,26.92361],[35.56134,26.8852],[35.51789,26.85666],[35.47072,26.83909],[35.42164,26.83315],[35.37253,26.83909],[35.32527,26.85666],[35.28169,26.8852],[35.24348,26.92361],[35.21211,26.97041],[35.18879,27.0238],[35.17442,27.08174],[35.16957,27.14199],[35.17442,27.20224],[35.18879,27.26018],[35.21211,27.31357],[35.24348,27.36037],[35.28169,27.39878],[35.32527,27.42732],[35.37253,27.44489],[35.42164,27.45083]];
+
+const LGKP_POLY=[[35.41037,27.02173],[35.38152,27.07163],[35.3716,27.08228],[35.36189,27.09568],[35.35486,27.10999],[35.3504,27.12956],[35.34884,27.14646],[35.32095,27.19642],[35.4387,27.29576],[35.47975,27.22389],[35.4668,27.21392],[35.47217,27.20813],[35.48103,27.19498],[35.48351,27.18962],[35.48779,27.19336],[35.52891,27.12077],[35.41037,27.02173]];
+
+const ATZ_POLY=[[35.42344,27.24823],[35.4399,27.24623],[35.45572,27.24034],[35.47031,27.23077],[35.48308,27.2179],[35.49357,27.20221],[35.50136,27.1843],[35.50615,27.16488],[35.50777,27.14468],[35.50615,27.12448],[35.50136,27.10506],[35.49357,27.08715],[35.48308,27.07146],[35.47031,27.05859],[35.45572,27.04902],[35.4399,27.04313],[35.42344,27.04114],[35.40698,27.04313],[35.39115,27.04902],[35.37655,27.05859],[35.36375,27.07146],[35.35325,27.08715],[35.34545,27.10506],[35.34064,27.12448],[35.33902,27.14468],[35.34064,27.16488],[35.34545,27.1843],[35.35325,27.20221],[35.36375,27.2179],[35.37655,27.23077],[35.39115,27.24034],[35.40698,27.24623],[35.42344,27.24823]];
+
+const OLY_POLY=[[35.73798,27.28251],[35.752,27.28081],[35.76549,27.27577],[35.77792,27.26758],[35.78881,27.25656],[35.79774,27.24314],[35.80438,27.22782],[35.80847,27.2112],[35.80985,27.19392],[35.80847,27.17664],[35.80438,27.16002],[35.79774,27.1447],[35.78881,27.13128],[35.77792,27.12026],[35.76549,27.11208],[35.752,27.10703],[35.73798,27.10533],[35.72395,27.10703],[35.71046,27.11208],[35.69802,27.12026],[35.68711,27.13128],[35.67817,27.1447],[35.67151,27.16002],[35.66742,27.17664],[35.66604,27.19392],[35.66742,27.2112],[35.67151,27.22782],[35.67817,27.24314],[35.68711,27.25656],[35.69802,27.26758],[35.71046,27.27577],[35.72395,27.28081],[35.73798,27.28251]];
+
+// interactive:false → kliks vallen door naar de grid-cellen eronder
+L.polygon(CTR_POLY,{color:'#FFA500',weight:2.5,fillColor:'#FFA500',fillOpacity:0.07,dashArray:'10 5',interactive:false}).addTo(airLayer);
+L.polygon(LGKP_POLY,{color:'#FF0000',weight:2,fillColor:'#FF0000',fillOpacity:0.20,interactive:false}).addTo(airLayer);
+L.polygon(ATZ_POLY,{color:'#FF0000',weight:2,fillColor:'#FF0000',fillOpacity:0.15,dashArray:'5 3',interactive:false}).addTo(airLayer);
+L.polygon(OLY_POLY,{color:'#FF0000',weight:2,fillColor:'#FF0000',fillOpacity:0.20,interactive:false}).addTo(airLayer);
+
+// ════════════════════════════════════════════════════
+//  TOGGLE / CLEAR
+// ════════════════════════════════════════════════════
+function toggleCell(id, skipHash){
+  if(!cells[id]) return;
+  const {rect,isCTR,baseStyle}=cells[id];
+  if(selected.has(id)){
+    selected.delete(id);
+    rect.setStyle(baseStyle);
+  } else {
+    selected.add(id);
+    rect.setStyle(isCTR ? S_SEL_CTR : S_SEL);
+  }
+  renderTags();
+  updateCTRWarning();
+  if(!skipHash) updateHash();
+}
+
+function clearAll(){
+  selected.forEach(id=>cells[id].rect.setStyle(cells[id].baseStyle));
+  selected.clear();
+  renderTags();
+  updateCTRWarning();
+  updateHash();
+  document.getElementById('emailWrap').style.display='none';
+}
+
+function removeCell(id){
+  selected.delete(id);
+  cells[id].rect.setStyle(cells[id].baseStyle);
+  renderTags(); updateCTRWarning(); updateHash();
+}
+
+// ════════════════════════════════════════════════════
+//  CTR WARNING
+// ════════════════════════════════════════════════════
+function updateCTRWarning(){
+  const hasCTR=[...selected].some(id=>CTR_ZONES.has(id));
+  document.getElementById('ctrWarn').style.display=hasCTR?'block':'none';
+  const badge=document.getElementById('hBadge');
+  badge.classList.toggle('ctr-active', hasCTR);
+}
+
+// ════════════════════════════════════════════════════
+//  RENDER CELL TAGS
+// ════════════════════════════════════════════════════
+function renderTags(){
+  const box=document.getElementById('cellsBox');
+  const badge=document.getElementById('hBadge');
+  const s=sortedCells();
+  if(!s.length){
+    box.innerHTML='<span class="hint">Click cells on the map to select them</span>';
+    badge.style.display='none';
+    document.getElementById('shareUrl').style.display='none';
+  } else {
+    box.innerHTML=s.map(id=>{
+      const {lm,isCTR}=cells[id];
+      const shortLm=lm?lm.replace(/\s*\[.*?\]/g,'').split(' ').slice(0,2).join(' '):'';
+      return `<span class="cell-tag${isCTR?' ctr':''}" onclick="removeCell('${id}')">
+        ${id}${shortLm?`<span class="lm"> ${shortLm}</span>`:''}
+        <span class="rm">x</span></span>`;
+    }).join('');
+    badge.textContent=s.length;
+    badge.style.display='inline-block';
+    // Update share URL display
+    const shareEl=document.getElementById('shareUrl');
+    shareEl.textContent=buildShareURL();
+    shareEl.style.display='block';
+  }
+}
+
+function sortedCells(){
+  return [...selected].sort((a,b)=>{
+    const[,ca,ra]=a.match(/^([A-Z]+)(\d+)$/);
+    const[,cb,rb]=b.match(/^([A-Z]+)(\d+)$/);
+    return ca!==cb?ca.localeCompare(cb):parseInt(ra)-parseInt(rb);
+  });
+}
+
+// ════════════════════════════════════════════════════
+//  URL HASH SYNC
+// ════════════════════════════════════════════════════
+function buildShareURL(){
+  const s=sortedCells();
+  const base=window.location.href.split('#')[0];
+  return s.length ? `${base}#cells=${s.join(',')}` : base;
+}
+
+function updateHash(){
+  const s=sortedCells();
+  const newHash=s.length?`#cells=${s.join(',')}`:'#';
+  // Use replaceState to avoid polluting browser history
+  history.replaceState(null,'',newHash);
+}
+
+function loadFromHash(){
+  const hash=window.location.hash.replace(/^#/,'');
+  if(!hash.startsWith('cells=')) return;
+  const ids=hash.slice(6).split(',');
+  let any=false;
+  ids.forEach(id=>{
+    id=id.trim().toUpperCase();
+    if(cells[id]&&!selected.has(id)){
+      selected.add(id);
+      cells[id].rect.setStyle(cells[id].isCTR?S_SEL_CTR:S_SEL);
+      any=true;
+    }
+  });
+  if(any){ renderTags(); updateCTRWarning(); }
+}
+
+async function copyLink(){
+  const url=buildShareURL();
+  try{
+    await navigator.clipboard.writeText(url);
+    const btn=document.querySelector('.share-url + .btn-ghost');
+    if(btn){ const t=btn.textContent; btn.textContent='Copied!'; setTimeout(()=>btn.textContent=t,1800); }
+  } catch{ alert('Copy failed — please copy the URL manually from the box above.'); }
+}
+
+// ════════════════════════════════════════════════════
+//  PRESETS  (IndexedDB — persistent offline storage)
+// ════════════════════════════════════════════════════
+const _IDB_NAME='uas-grid-db', _IDB_VER=1, _IDB_STORE='presets';
+let _db=null;
+
+function _openDB(){
+  if(_db) return Promise.resolve(_db);
+  return new Promise((res,rej)=>{
+    const req=indexedDB.open(_IDB_NAME,_IDB_VER);
+    req.onupgradeneeded=e=>e.target.result.createObjectStore(_IDB_STORE,{keyPath:'name'});
+    req.onsuccess=e=>{ _db=e.target.result; res(_db); };
+    req.onerror=e=>rej(e.target.error);
+  });
+}
+
+function _tx(mode){
+  return _openDB().then(db=>db.transaction(_IDB_STORE,mode).objectStore(_IDB_STORE));
+}
+
+async function savePreset(){
+  const name=document.getElementById('presetName').value.trim();
+  if(!name){ alert('Enter a name for this preset.'); return; }
+  if(!selected.size){ alert('Select cells on the map first.'); return; }
+  const store=await _tx('readwrite');
+  const req=store.put({name,cells:sortedCells()});
+  req.onsuccess=()=>{ document.getElementById('presetName').value=''; renderPresets(); };
+}
+
+async function loadPreset(name){
+  const store=await _tx('readonly');
+  const req=store.get(name);
+  req.onsuccess=e=>{
+    if(!e.target.result) return;
+    clearAll();
+    e.target.result.cells.forEach(id=>toggleCell(id,true));
+    updateHash();
+  };
+}
+
+async function deletePreset(name){
+  const store=await _tx('readwrite');
+  const req=store.delete(name);
+  req.onsuccess=()=>renderPresets();
+}
+
+async function renderPresets(){
+  const list=document.getElementById('presetList');
+  try{
+    const store=await _tx('readonly');
+    const req=store.getAll();
+    req.onsuccess=e=>{
+      const presets=e.target.result||[];
+      if(!presets.length){
+        list.innerHTML='<span class="hint">No presets saved yet</span>';
+        return;
+      }
+      list.innerHTML=presets.map(({name,cells})=>{
+        const safe=name.replace(/'/g,"\\'");
+        return `<div class="preset-item">
+          <div class="preset-info">
+            <span class="preset-name">${name}</span>
+            <span class="preset-cells">${(cells||[]).join(', ')}</span>
+          </div>
+          <div class="preset-actions">
+            <button class="p-btn" onclick="loadPreset('${safe}')">Load</button>
+            <button class="p-btn del" onclick="deletePreset('${safe}')">Del</button>
+          </div>
+        </div>`;
+      }).join('');
+    };
+  } catch(err){
+    console.warn('IndexedDB unavailable:',err);
+    list.innerHTML='<span class="hint">Storage unavailable</span>';
+  }
+}
+
+// ════════════════════════════════════════════════════
+//  EMAIL GENERATOR
+// ════════════════════════════════════════════════════
+function generateEmail(){
+  if(!selected.size){ alert('Select at least one grid cell on the map first.'); return; }
+
+  const name     =v('pilotName')     ||'[NAME]';
+  const pid      =v('pilotId')       ||'[RPAS ID]';
+  const opId     =v('operatorId')    ||'[OPERATOR ID]';
+  const uasModel =v('uasModel')      ||'[UAS MODEL]';
+  const uasSerial=v('uasSerial')     ||'[SERIAL]';
+  const phone    =v('pilotPhone')    ||'[PHONE]';
+  const purpose  =v('flightPurpose') ||'';
+  const dateVal  =v('flightDate');
+  const alt      =v('maxAlt')        ||'400';
+  const tFrom    =v('timeFrom')      ||'TBD';
+  const tTo      =v('timeTo')        ||'TBD';
+
+  const dateStr=dateVal
+    ?new Date(dateVal+'T12:00:00').toLocaleDateString('en-GB',{
+        weekday:'long',year:'numeric',month:'long',day:'numeric'})
+    :'[DATE TBD]';
+
+  const s=sortedCells();
+  const hasCTR=s.some(id=>CTR_ZONES.has(id));
+
+  const sectorBlock=s.map(id=>{
+    const{bounds:{n,s:cs,w,e},lm,isCTR}=cells[id];
+    const cleanLm=lm?lm.replace(/\s*\[.*?\]/g,''):'';
+    const loc=cleanLm?` — ${cleanLm}`:'';
+    const ctrNote=isCTR?' [CTR/APPROACH ZONE]':'';
+    return `  - ${id}${loc}${ctrNote}\n`+
+           `    N ${cs.toFixed(3)} - ${n.toFixed(3)} deg | E ${w.toFixed(3)} - ${e.toFixed(3)} deg`;
+  }).join('\n');
+
+  const subjectCells=s.slice(0,3).join(',')+(s.length>3?`+${s.length-3}`:'');
+  const subject=`UAS NOTIF - Karpathos - ${dateVal||'TBD'} - Sectors ${subjectCells}`;
+
+  // Shareable grid URL with current cell selection
+  const gridUrl=(()=>{
+    try{
+      const base=window.location.href.split('#')[0];
+      return base+'#cells='+s.join(',');
+    }catch{ return ''; }
+  })();
+
+  const ctrBlock=hasCTR?
+`
+NOTE: Selected sectors include CTR/ATZ airspace. Standing permission granted for
+CTR operations. ATZ sectors: AFIS coordination required before takeoff.
+AFIS tower: +30 22450 91120
+`:'\n';
+
+  const body=
+`TO: AFIS Karpathos
+RE: UAS OPERATION COORDINATION
+${ctrBlock}
+=========================================
+PILOT
+  Name:            ${name}
+  Remote Pilot ID: ${pid}
+  Operator ID:     ${opId}
+  Mobile (on-site):${phone}
+
+UAS
+  Model:           ${uasModel}
+  Serial:          ${uasSerial}
+  Category:        OPEN A1/A3
+
+OPERATION
+  Date:            ${dateStr}
+  Window:          ${tFrom} - ${tTo} UTC
+  Max altitude:    ${alt} ft AGL (VLOS)
+
+SECTORS (grid ref | bounding coordinates)
+=========================================
+${sectorBlock}
+
+=========================================
+I will call before and after the operation.
+Tower: +30 22450 91120 / +30 22450 91047
+${gridUrl?`\nGrid map: ${gridUrl}`:''}
+=========================================`;
+
+  document.getElementById('emailSubj').textContent='Subject: '+subject;
+  document.getElementById('emailBody').textContent=body;
+  const wrap=document.getElementById('emailWrap');
+  wrap.style.display='block';
+  wrap._subj=subject;
+  wrap._body=body;
+}
+
+async function copyEmail(){
+  try{
+    await navigator.clipboard.writeText(document.getElementById('emailBody').textContent);
+    const f=document.getElementById('flashOk');
+    f.style.display='block'; setTimeout(()=>f.style.display='none',2200);
+  } catch{ alert('Auto-copy failed — select the text and copy manually.'); }
+}
+
+
+// ════════════════════════════════════════════════════
+//  KML EXPORT
+//  KML colors: AABBGGRR
+//  Orange #FF8C00 selected:  50% = "80008CFF"
+//  Crimson #DC143C CTR sel:  50% = "80143CDC"  → AA=80,BB=14,GG=3C,RR=DC = "80143CDC"
+//  Blue #3D9CF0 grid:        10% = "1AF09C3D"
+// ════════════════════════════════════════════════════
+function downloadKML(){
+  if(!selected.size){ alert('Select at least one grid cell before downloading.'); return; }
+  const date=v('flightDate')||new Date().toISOString().split('T')[0];
+  const s=sortedCells();
+
+  let kml=`<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://www.opengis.net/kml/2.2">
+<Document>
+  <name>Karpathos UAS Grid - ${date}</name>
+  <description>UAS operating zones for ${date}. Selected: ${s.join(', ')}.</description>
+  <Style id="sel">
+    <LineStyle><color>FF008CFF</color><width>2.5</width></LineStyle>
+    <PolyStyle><color>80008CFF</color></PolyStyle>
+  </Style>
+  <Style id="sel-ctr">
+    <LineStyle><color>FF2020DC</color><width>3</width></LineStyle>
+    <PolyStyle><color>803C14DC</color></PolyStyle>
+  </Style>
+  <Style id="grid">
+    <LineStyle><color>80F09C3D</color><width>0.7</width></LineStyle>
+    <PolyStyle><color>1AF09C3D</color></PolyStyle>
+  </Style>
+  <Style id="ctr-zone">
+    <LineStyle><color>80202CDC</color><width>1</width></LineStyle>
+    <PolyStyle><color>10143CDC</color></PolyStyle>
+  </Style>
+
+`;
+
+  for(let r=0;r<ROWS;r++){
+    for(let c=2;c<COLS-2;c++){
+      const id=colLetter(c-2)+(r+1);
+      const{bounds:{n,s:cs,w,e},lm,isCTR}=cells[id];
+      const isSel=selected.has(id);
+      const cleanLm=lm?lm.replace(/\s*\[.*?\]/g,''):'';
+      let styleId;
+      if(isSel&&isCTR) styleId='sel-ctr';
+      else if(isSel)   styleId='sel';
+      else if(isCTR)   styleId='ctr-zone';
+      else             styleId='grid';
+
+      kml+=`  <Placemark>
+    <name>${id}${cleanLm?' - '+cleanLm:''}</name>
+    <description><![CDATA[${id}${cleanLm?'<br>'+cleanLm:''}<br>N ${cs.toFixed(3)}-${n.toFixed(3)} | E ${w.toFixed(3)}-${e.toFixed(3)}${isCTR?'<br><b>CTR / APPROACH ZONE</b>':''}${isSel?'<br><b>SELECTED OPERATING ZONE</b>':''}]]></description>
+    <styleUrl>#${styleId}</styleUrl>
+    <Polygon><outerBoundaryIs><LinearRing><coordinates>
+      ${w},${cs},0 ${e},${cs},0 ${e},${n},0 ${w},${n},0 ${w},${cs},0
+    </coordinates></LinearRing></outerBoundaryIs></Polygon>
+  </Placemark>
+`;
+    }
+  }
+  kml+=`</Document>\n</kml>`;
+
+  const blob=new Blob([kml],{type:'application/vnd.google-earth.kml+xml'});
+  const url=URL.createObjectURL(blob);
+  const a=Object.assign(document.createElement('a'),{href:url,download:`karpathos-uas-${date}.kml`});
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+// ════════════════════════════════════════════════════
+//  PANEL TOGGLE
+// ════════════════════════════════════════════════════
+function togglePanel(hdr){
+  const body=hdr.nextElementSibling;
+  const arrow=hdr.querySelector('.p-arrow');
+  const open=!body.classList.contains('collapsed');
+  body.classList.toggle('collapsed',open);
+  if(arrow) arrow.textContent=open?'▼':'▲';
+}
+
+// ════════════════════════════════════════════════════
+//  MAP EXPORT
+// ════════════════════════════════════════════════════
+// ════════════════════════════════════════════════════
+//  SCHEDULE TO ATC  (schrijft naar gedeelde atc-grid-db)
+// ════════════════════════════════════════════════════
+function scheduleToATC(){
+  if(!selected.size){ alert('Selecteer eerst minimaal één cel op de kaart.'); return; }
+  const cells = sortedCells();
+  const flight = {
+    id:        Date.now(),
+    status:    'pending',
+    created:   Date.now(),
+    pilotName: v('pilotName')     || '[NAME]',
+    droneReg:  v('uasSerial')     || '',
+    droneType: v('uasModel')      || '',
+    date:      v('flightDate')    || '',
+    timeFrom:  v('timeFrom')      || '',
+    timeTo:    v('timeTo')        || '',
+    notes:     v('flightPurpose') || '',
+    afisNote:  '',
+    cells,
+  };
+  const req = indexedDB.open('atc-grid-db', 1);
+  req.onupgradeneeded = e => e.target.result.createObjectStore('flights',{keyPath:'id'});
+  req.onsuccess = e => {
+    const db  = e.target.result;
+    const tx  = db.transaction('flights','readwrite');
+    tx.objectStore('flights').put(flight);
+    tx.oncomplete = () => {
+      const fl = document.getElementById('scheduleFlash');
+      fl.style.display = 'block';
+      setTimeout(()=>{ fl.style.display='none'; }, 3000);
+      if(window.renderMyFlights) renderMyFlights();
+    };
+  };
+  req.onerror = () => alert('Opslaan mislukt — IndexedDB niet beschikbaar.');
+}
+
+// ════════════════════════════════════════════════════
+//  MY FLIGHTS CALENDAR  (reads from atc-grid-db)
+// ════════════════════════════════════════════════════
+(function(){
+  const DAYS = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+  const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  let mfWeek = getMfMonday(new Date());
+
+  function getMfMonday(d){
+    const dt=new Date(d); const day=dt.getDay();
+    const diff=(day===0?-6:1-day); dt.setDate(dt.getDate()+diff); dt.setHours(0,0,0,0); return dt;
+  }
+  function isoDate(d){ return d.toISOString().slice(0,10); }
+  function dbGetAll(){
+    return new Promise((res,rej)=>{
+      const r=indexedDB.open('atc-grid-db',1);
+      r.onupgradeneeded=e=>e.target.result.createObjectStore('flights',{keyPath:'id'});
+      r.onsuccess=e=>{
+        const q=e.target.result.transaction('flights','readonly').objectStore('flights').getAll();
+        q.onsuccess=ev=>res(ev.target.result);
+        q.onerror=ev=>rej(ev.target.error);
+      };
+      r.onerror=e=>rej(e.target.error);
+    });
+  }
+
+  window.renderMyFlights = async function(){
+    const all = await dbGetAll().catch(()=>[]);
+    const days = Array.from({length:7},(_,i)=>{ const d=new Date(mfWeek); d.setDate(d.getDate()+i); return d; });
+    const todayStr = isoDate(new Date());
+
+    // Week label
+    const s=days[0], e=days[6];
+    document.getElementById('mfWeekLbl').textContent =
+      `${s.getDate()} ${MONTHS[s.getMonth()]} – ${e.getDate()} ${MONTHS[e.getMonth()]}`;
+
+    const el = document.getElementById('mfList');
+    el.innerHTML = '';
+    let anyFound = false;
+
+    days.forEach(day => {
+      const ds = isoDate(day);
+      const flights = all.filter(f => f.date === ds);
+      if (!flights.length) return;
+      anyFound = true;
+
+      const dayEl = document.createElement('div');
+      dayEl.className = 'mf-day';
+      const isToday = ds === todayStr;
+      dayEl.innerHTML = `<div class="mf-day-head ${isToday?'mf-today':''}">${DAYS[day.getDay()===0?6:day.getDay()-1]} ${day.getDate()} ${MONTHS[day.getMonth()]}</div>`;
+
+      flights.sort((a,b)=>(a.timeFrom||'').localeCompare(b.timeFrom||'')).forEach(f=>{
+        const item = document.createElement('div');
+        item.className = `mf-item ${f.status}`;
+        const cells = f.cells.length<=4 ? f.cells.join(', ') : f.cells.slice(0,4).join(', ')+` +${f.cells.length-4}`;
+        item.innerHTML = `
+          <div class="mf-time">${f.timeFrom||'?'}–${f.timeTo||'?'}</div>
+          <div style="flex:1;min-width:0">
+            <div class="mf-cells">${cells}</div>
+          </div>
+          <div class="mf-status ${f.status}">${f.status.toUpperCase()}</div>`;
+        item.title = `${f.cells.join(', ')} • ${f.notes||''}`;
+        dayEl.appendChild(item);
+      });
+      el.appendChild(dayEl);
+    });
+
+    if (!anyFound) el.innerHTML = '<div class="mf-empty">No flights this week</div>';
+  };
+
+  window.mfPrevWeek = function(){ mfWeek.setDate(mfWeek.getDate()-7); renderMyFlights(); };
+  window.mfNextWeek = function(){ mfWeek.setDate(mfWeek.getDate()+7); renderMyFlights(); };
+
+  // Auto-render on load
+  window.addEventListener('load', ()=>{ setTimeout(renderMyFlights, 400); });
+})();
+
+function exportMap(){
+  const btn = event.currentTarget;
+  btn.textContent = '⏳ Rendering…';
+  btn.disabled = true;
+
+  // Give Leaflet 300ms to finish any pending tile renders
+  setTimeout(() => {
+    _doMapExport(btn);
+  }, 300);
+}
+
+function _doMapExport(btn){
+  const mapEl   = document.getElementById('map');
+  const { width, height } = mapEl.getBoundingClientRect();
+  const dpr = window.devicePixelRatio || 1;
+
+  // Build a canvas by compositing tile <img> elements + the SVG/canvas overlay
+  const out    = document.createElement('canvas');
+  out.width    = Math.round(width  * dpr);
+  out.height   = Math.round(height * dpr);
+  const ctx    = out.getContext('2d');
+  ctx.scale(dpr, dpr);
+
+  // Get map pane offset (Leaflet shifts the pane as you pan)
+  const mapPane    = map.getPanes().mapPane;
+  const paneStyle  = window.getComputedStyle(mapPane);
+  const paneMatrix = new DOMMatrix(paneStyle.transform);
+  const paneOffX   = paneMatrix.m41;
+  const paneOffY   = paneMatrix.m42;
+
+  // 1. Draw all loaded tile images
+  const tilePanes = mapEl.querySelectorAll('.leaflet-tile-container');
+  tilePanes.forEach(tp => {
+    const tpMatrix = new DOMMatrix(window.getComputedStyle(tp).transform);
+    const imgs = tp.querySelectorAll('img.leaflet-tile-loaded');
+    imgs.forEach(img => {
+      if (!img.complete || img.naturalWidth === 0) return;
+      const s = img.style;
+      const x = parseFloat(s.left||0) + paneOffX + tpMatrix.m41;
+      const y = parseFloat(s.top ||0) + paneOffY + tpMatrix.m42;
+      const w = parseFloat(s.width ||img.width );
+      const h = parseFloat(s.height||img.height);
+      try { ctx.drawImage(img, x, y, w, h); } catch(e){}
+    });
+  });
+
+  // 2. Draw Leaflet SVG overlay (grid polygons)
+  const svgEl = mapEl.querySelector('.leaflet-overlay-pane svg');
+  if (svgEl) {
+    const svgStr  = new XMLSerializer().serializeToString(svgEl);
+    const blob    = new Blob([svgStr], {type:'image/svg+xml;charset=utf-8'});
+    const url     = URL.createObjectURL(blob);
+    const svgImg  = new Image();
+    svgImg.onload = () => {
+      const svgPane = svgEl.closest('.leaflet-overlay-pane');
+      const sp = window.getComputedStyle(svgPane);
+      const sm = new DOMMatrix(sp.transform);
+      ctx.drawImage(svgImg, sm.m41 + paneOffX, sm.m42 + paneOffY, svgEl.clientWidth, svgEl.clientHeight);
+      URL.revokeObjectURL(url);
+      _downloadCanvas(out, btn);
+    };
+    svgImg.onerror = () => { URL.revokeObjectURL(url); _downloadCanvas(out, btn); };
+    svgImg.src = url;
+  } else {
+    _downloadCanvas(out, btn);
+  }
+}
+
+function _downloadCanvas(canvas, btn){
+  const date = new Date().toISOString().slice(0,10);
+  const link = document.createElement('a');
+  link.download = `karpathos-grid-${date}.png`;
+  link.href     = canvas.toDataURL('image/png');
+  link.click();
+  btn.textContent = '📷 Export kaart als PNG';
+  btn.disabled    = false;
+}
+
+// ════════════════════════════════════════════════════
+//  REFERENCE MAP EXPORT  (full island view, tiles + grid)
+// ════════════════════════════════════════════════════
+async function exportReferenceMap(){
+  const btn = event.currentTarget;
+  btn.textContent = '⏳ Fetching tiles…';
+  btn.disabled = true;
+
+  const DATE = new Date().toISOString().slice(0,10);
+
+  // ── Web Mercator tile math ─────────────────────────────
+  const Z  = 12;
+  const N  = 1 << Z;   // 4096
+  const TS = 256;      // tile size px
+
+  function lon2t(lon){ return (lon + 180) / 360 * N; }
+  function lat2t(lat){
+    const s = Math.sin(lat * Math.PI / 180);
+    return (1 - Math.log((1 + s)/(1 - s)) / (2*Math.PI)) / 2 * N;
+  }
+
+  // Exact geographic bounds — canvas covers precisely this area, no tile overhang
+  const WEST  = B.west  + 2*DX - 0.012;   // just outside col A
+  const EAST  = B.east  - 2*DX + 0.012;   // just outside col I
+  const NORTH = B.north + 0.02;            // a bit of room at top
+  const SOUTH = B.south - 0.04;            // keep southern tip
+
+  // Fractional tile origins (not rounded — this is the key fix)
+  const originX = lon2t(WEST);
+  const originY = lat2t(NORTH);
+
+  const txMin = Math.floor(originX);
+  const txMax = Math.floor(lon2t(EAST));
+  const tyMin = Math.floor(originY);
+  const tyMax = Math.floor(lat2t(SOUTH));
+
+  // Canvas size exactly matches the geographic bounds
+  const canvasW = Math.ceil((lon2t(EAST)  - originX) * TS);
+  const canvasH = Math.ceil((lat2t(SOUTH) - originY) * TS);
+
+  const out = document.createElement('canvas');
+  out.width  = canvasW * 2;
+  out.height = canvasH * 2;
+  const ctx  = out.getContext('2d');
+  ctx.scale(2, 2);
+
+  // ── 1. Fetch & draw all OSM tiles ─────────────────────
+  // Tiles are drawn offset so that WEST/NORTH aligns with canvas pixel 0,0
+  const subs = ['a','b','c'];  let si = 0;
+  await Promise.all(
+    Array.from({length: txMax - txMin + 1}, (_,ix) =>
+      Array.from({length: tyMax - tyMin + 1}, (_,iy) => {
+        const tx  = txMin + ix;
+        const ty  = tyMin + iy;
+        const sub = subs[si++ % 3];
+        const url = `https://${sub}.tile.openstreetmap.org/${Z}/${tx}/${ty}.png`;
+        const px  = (tx - originX) * TS;   // shifted by fractional origin
+        const py  = (ty - originY) * TS;
+        return fetch(url, {mode:'cors', credentials:'omit'})
+          .then(r => r.ok ? r.blob() : null)
+          .then(blob => blob ? new Promise(res => {
+            const u = URL.createObjectURL(blob);
+            const img = new Image();
+            img.onload = () => { ctx.drawImage(img, px, py, TS, TS); URL.revokeObjectURL(u); res(); };
+            img.onerror = () => { URL.revokeObjectURL(u); res(); };
+            img.src = u;
+          }) : null)
+          .catch(()=>{});
+      })
+    ).flat()
+  );
+
+  // ── Helper: geo → canvas pixel (relative to exact WEST/NORTH origin) ─
+  function geo2px(lat, lon){
+    return {
+      x: (lon2t(lon) - originX) * TS,
+      y: (lat2t(lat) - originY) * TS,
+    };
+  }
+
+  // ── 2. Draw grid cells ────────────────────────────────
+  btn.textContent = '⏳ Compositing…';
+  for(let r=0; r<ROWS; r++){
+    for(let c=2; c<COLS-2; c++){
+      const id   = colLetter(c-2) + (r+1);
+      const isSel = selected.has(id);
+      const isCTR = CTR_ZONES.has(id);
+
+      const s = B.south + r*DY,   n = s + DY;
+      const w = B.west  + c*DX,   e = w + DX;
+      const nw = geo2px(n, w),    se = geo2px(s, e);
+      const cw = se.x - nw.x,     ch = se.y - nw.y;
+
+      ctx.fillStyle = isSel
+        ? (isCTR ? 'rgba(29,127,212,0.42)' : 'rgba(61,156,240,0.38)')
+        : (isCTR ? 'rgba(26,127,212,0.07)' : 'rgba(0,0,0,0)');
+      ctx.fillRect(nw.x, nw.y, cw, ch);
+
+      ctx.strokeStyle = isSel ? '#3d9cf0' : (isCTR ? 'rgba(26,127,212,0.55)' : 'rgba(61,120,180,0.30)');
+      ctx.lineWidth   = isSel ? 1.5 : 0.5;
+      ctx.strokeRect(nw.x+.5, nw.y+.5, cw-1, ch-1);
+    }
+  }
+
+  // ── 3. Draw place names ───────────────────────────────
+  ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+  for(let r=0; r<ROWS; r++){
+    for(let c=2; c<COLS-2; c++){
+      const id  = colLetter(c-2) + (r+1);
+      const lm  = LM[id];
+      if(!lm) continue;
+      const label = lm.replace(/\s*\[.*?\]/g,'').replace(/\([^)]+\)/g,'').trim();
+      const s = B.south + r*DY,  n = s + DY;
+      const w = B.west  + c*DX,  e = w + DX;
+      const ctr = geo2px((s+n)/2, (w+e)/2);
+      const isSel = selected.has(id);
+      const isCTR = CTR_ZONES.has(id);
+
+      ctx.font        = '8px "Segoe UI",sans-serif';
+      ctx.fillStyle   = isSel ? '#fff' : (isCTR ? 'rgba(160,210,255,0.95)' : 'rgba(255,255,255,0.85)');
+      ctx.shadowColor = 'rgba(0,0,0,0.9)';
+      ctx.shadowBlur  = 3;
+      const words = label.split(' ');
+      if(words.length > 1){
+        const mid = Math.ceil(words.length/2);
+        ctx.fillText(words.slice(0,mid).join(' '), ctr.x, ctr.y-4);
+        ctx.fillText(words.slice(mid).join(' '),   ctr.x, ctr.y+4);
+      } else {
+        ctx.fillText(label, ctr.x, ctr.y);
+      }
+    }
+  }
+  ctx.shadowBlur = 0;
+
+  // ── 4. Column letters A–I (pill above each column) ────
+  ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+  for(let c=2; c<COLS-2; c++){
+    const letter = colLetter(c-2);
+    const wCell = B.west + c*DX, eCell = wCell + DX;
+    const cx    = (geo2px(B.north, wCell).x + geo2px(B.north, eCell).x) / 2;
+    const topY  = geo2px(B.north, (wCell+eCell)/2).y + 9;
+    // Pill
+    const pw = 14, ph = 13;
+    ctx.fillStyle = 'rgba(30,70,120,0.85)';
+    ctx.beginPath(); ctx.roundRect(cx - pw/2, topY - ph/2, pw, ph, 3); ctx.fill();
+    ctx.font      = 'bold 10px "Segoe UI",sans-serif';
+    ctx.fillStyle = '#7bc8ff';
+    ctx.shadowBlur = 0;
+    ctx.fillText(letter, cx, topY);
+  }
+
+  // ── 5. Row numbers 1–29 (left edge of col A, pill background) ─
+  ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+  for(let r=0; r<ROWS; r++){
+    const sRow = B.south + r*DY, nRow = sRow + DY;
+    const cy   = (geo2px(nRow, B.west+2*DX).y + geo2px(sRow, B.west+2*DX).y) / 2;
+    const lx   = geo2px((sRow+nRow)/2, B.west+2*DX).x + 1;
+    const label = String(r+1);
+    const pw = 14, ph = 11;
+    ctx.fillStyle = 'rgba(30,70,120,0.82)';
+    ctx.beginPath(); ctx.roundRect(lx - pw/2, cy - ph/2, pw, ph, 3); ctx.fill();
+    ctx.font      = 'bold 9px "Segoe UI",sans-serif';
+    ctx.fillStyle = '#7bc8ff';
+    ctx.shadowBlur = 0;
+    ctx.fillText(label, lx, cy);
+  }
+
+  // ── 6. Download ───────────────────────────────────────
+  const link = document.createElement('a');
+  link.download = `karpathos-grid-${DATE}.png`;
+  link.href     = out.toDataURL('image/png');
+  link.click();
+  btn.textContent = '🗺 Export referentiekaart (9:16)';
+  btn.disabled    = false;
+}
+
+// ════════════════════════════════════════════════════
+//  HELPER
+// ════════════════════════════════════════════════════
+function v(id){ return document.getElementById(id).value.trim(); }
+
+// ════════════════════════════════════════════════════
+//  OFFLINE DETECTION
+// ════════════════════════════════════════════════════
+function updateOnlineStatus(){
+  const offline=!navigator.onLine;
+  document.getElementById('offlineBar').style.display=offline?'block':'none';
+  document.getElementById('towerDot').style.display=offline?'none':'inline-block';
+  document.getElementById('offlineDot').style.display=offline?'inline-block':'none';
+}
+window.addEventListener('online',  updateOnlineStatus);
+window.addEventListener('offline', updateOnlineStatus);
+updateOnlineStatus();
+
+// ════════════════════════════════════════════════════
+//  INIT
+// ════════════════════════════════════════════════════
+(()=>{
+  // Date = today
+  const now=new Date();
+  document.getElementById('flightDate').value=now.toISOString().split('T')[0];
+
+  // Time = now (floored to 15 min)
+  const h =now.getHours();
+  const m =Math.floor(now.getMinutes()/15)*15;
+  document.getElementById('timeFrom').value=h.toString().padStart(2,'0')+':'+m.toString().padStart(2,'0');
+
+  // End = now + 2h
+  const end=new Date(now.getTime()+2*3600000);
+  const eh=end.getHours(); const em=Math.floor(end.getMinutes()/15)*15;
+  document.getElementById('timeTo').value=eh.toString().padStart(2,'0')+':'+em.toString().padStart(2,'0');
+
+  // Persist editable pilot/UAS fields
+  const persist=['pilotName','pilotId','operatorId','uasModel','uasSerial','pilotPhone','maxAlt'];
+  persist.forEach(id=>{
+    const el=document.getElementById(id);
+    const key='uas_'+id;
+    const saved=localStorage.getItem(key);
+    if(saved!==null&&saved!=='') el.value=saved;
+    el.addEventListener('input',()=>localStorage.setItem(key,el.value));
+  });
+
+  // Render presets
+  renderPresets();
+
+  // Load from URL hash (after grid is built)
+  loadFromHash();
+
+  // Register Service Worker
+  if('serviceWorker' in navigator){
+    navigator.serviceWorker.register('./sw.js')
+      .then(reg=>{
+        console.log('[SW] Registered, scope:', reg.scope);
+        reg.addEventListener('updatefound',()=>{
+          const newWorker=reg.installing;
+          newWorker.addEventListener('statechange',()=>{
+            if(newWorker.state==='installed'&&navigator.serviceWorker.controller){
+              console.log('[SW] Update available — reload to apply.');
+            }
+          });
+        });
+      })
+      .catch(err=>console.warn('[SW] Registration failed:',err));
+  }
+})();
+</script>
+
+<!-- ─────── DIGITAL TIME PICKER ─────── -->
+<div id="timePicker" class="tp-overlay" style="display:none" onclick="if(event.target===this)closePicker()">
+  <div class="tp-box">
+    <div class="tp-label" id="tp-label">Window Start (UTC)</div>
+    <div class="tp-clock">
+      <div class="tp-unit">
+        <button onclick="stepHour(1)">▲</button>
+        <div class="tp-digit" id="tp-h">00</div>
+        <button onclick="stepHour(-1)">▼</button>
+      </div>
+      <div class="tp-sep">:</div>
+      <div class="tp-unit">
+        <button onclick="stepMin(5)">▲</button>
+        <div class="tp-digit" id="tp-m">00</div>
+        <button onclick="stepMin(-5)">▼</button>
+      </div>
+    </div>
+    <div class="tp-btns">
+      <button class="tp-cancel" onclick="closePicker()">Cancel</button>
+      <button class="tp-ok"     onclick="confirmPicker()">OK</button>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+  let _pickerTarget = null; // the <input> element we opened for
+  let _ph = 0, _pm = 0;
+
+  function pad(n){ return String(n).padStart(2,'0'); }
+  function renderPicker(){ document.getElementById('tp-h').textContent=pad(_ph); document.getElementById('tp-m').textContent=pad(_pm); }
+
+  window.openPicker = function(inputId, labelText){
+    _pickerTarget = document.getElementById(inputId);
+    const val = _pickerTarget.value;
+    if(val){ const [h,m]=val.split(':'); _ph=parseInt(h)||0; _pm=parseInt(m)||0; }
+    else { _ph=0; _pm=0; }
+    document.getElementById('tp-label').textContent = labelText;
+    renderPicker();
+    document.getElementById('timePicker').style.display='flex';
+  };
+
+  window.closePicker = function(){ document.getElementById('timePicker').style.display='none'; _pickerTarget=null; };
+
+  window.confirmPicker = function(){
+    if(_pickerTarget){ _pickerTarget.value=pad(_ph)+':'+pad(_pm); _pickerTarget.dispatchEvent(new Event('change')); }
+    closePicker();
+  };
+
+  window.stepHour = function(d){ _ph=(_ph+d+24)%24; renderPicker(); };
+  window.stepMin  = function(d){ _pm=(_pm+d+60)%60; renderPicker(); };
+})();
+</script>
+</body>
+</html>
