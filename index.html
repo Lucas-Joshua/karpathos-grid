@@ -726,14 +726,18 @@
                 <input type="number" id="maxAlt" value="400" min="10" max="400"/>
               </div>
             </div>
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;">
+              <span style="font-size:10px;color:var(--dim);text-transform:uppercase;letter-spacing:.05em;">Time Window</span>
+              <button id="tzToggleBtn" onclick="toggleTz()" style="padding:2px 8px;font-size:10px;border-radius:4px;border:1px solid var(--border);background:rgba(61,156,240,.1);color:var(--accent);cursor:pointer;font-family:inherit;">🕐 EEST (UTC+3)</button>
+            </div>
             <div class="row2">
               <div class="fg">
-                <label>Window Start (UTC)</label>
-                <input type="time" id="timeFrom" readonly onclick="openPicker('timeFrom','Window Start (UTC)')" style="cursor:pointer"/>
+                <label id="labelTimeFrom">Window Start (EEST)</label>
+                <input type="time" id="timeFrom" readonly onclick="openPicker('timeFrom', document.getElementById('labelTimeFrom').textContent)" style="cursor:pointer"/>
               </div>
               <div class="fg">
-                <label>Window End (UTC)</label>
-                <input type="time" id="timeTo" readonly onclick="openPicker('timeTo','Window End (UTC)')" style="cursor:pointer"/>
+                <label id="labelTimeTo">Window End (EEST)</label>
+                <input type="time" id="timeTo" readonly onclick="openPicker('timeTo', document.getElementById('labelTimeTo').textContent)" style="cursor:pointer"/>
               </div>
             </div>
             <div class="fg">
@@ -1564,8 +1568,8 @@ function scheduleToATC(){
     droneReg:  v('uasSerial')     || '',
     droneType: v('uasModel')      || '',
     date:      v('flightDate')    || '',
-    timeFrom:  v('timeFrom')      || '',
-    timeTo:    v('timeTo')        || '',
+    timeFrom:  shiftTime(v('timeFrom'), -(window._tzOffset||0)) || '',
+    timeTo:    shiftTime(v('timeTo'),   -(window._tzOffset||0)) || '',
     notes:     v('flightPurpose') || '',
     afisNote:  '',
     cells:     cellIds,
@@ -2044,6 +2048,32 @@ updateOnlineStatus();
   window.stepHour = function(d){ _ph=(_ph+d+24)%24; renderPicker(); };
   window.stepMin  = function(d){ _pm=(_pm+d+60)%60; renderPicker(); };
 })();
+
+// ── Timezone toggle (default: EEST = UTC+3) ───────────────────────────────
+window._tzOffset = 3; // hours ahead of UTC
+
+window.shiftTime = function(hhmm, hours){
+  if (!hhmm || !hhmm.includes(':')) return hhmm;
+  const [h, m] = hhmm.split(':').map(Number);
+  const shifted = ((h + hours) % 24 + 24) % 24;
+  return String(shifted).padStart(2,'0') + ':' + String(m).padStart(2,'0');
+};
+
+window.toggleTz = function(){
+  const isEEST = window._tzOffset === 3;
+  window._tzOffset = isEEST ? 0 : 3;
+  const label  = isEEST ? 'UTC' : 'EEST (UTC+3)';
+  const suffix = isEEST ? '(UTC)' : '(EEST)';
+  document.getElementById('tzToggleBtn').textContent = '🕐 ' + label;
+  document.getElementById('labelTimeFrom').textContent = 'Window Start ' + suffix;
+  document.getElementById('labelTimeTo').textContent   = 'Window End '   + suffix;
+  // Shift the currently entered times
+  const delta = isEEST ? -3 : 3;
+  ['timeFrom','timeTo'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el && el.value) el.value = window.shiftTime(el.value, delta);
+  });
+};
 </script>
 
 <!-- ─────── WEATHER WIDGET ─────── -->
@@ -2261,13 +2291,14 @@ updateOnlineStatus();
   window.mfEditFlight = function(id){
     if (!selFlight || selFlight.id !== id) return;
     const f = selFlight;
-    // Fill form fields
-    const setV = (elId, val) => { const el = document.getElementById(elId); if(el) el.value = val||''; };
-    setV('fDate',    f.date);
-    setV('fTimeFrom', f.timeFrom);
-    setV('fTimeTo',   f.timeTo);
-    setV('fAlt',      f.alt);
-    setV('fNotes',    f.notes);
+    const set = (elId, val) => { const el = document.getElementById(elId); if(el) el.value = val||''; };
+    set('flightDate',    f.date);
+    set('maxAlt',        f.maxAlt || '');
+    set('flightPurpose', f.notes  || '');
+    // Convert stored UTC times to current display timezone
+    const tz = window._tzOffset || 0;
+    set('timeFrom', shiftTime(f.timeFrom,  tz));
+    set('timeTo',   shiftTime(f.timeTo,    tz));
     // Restore cell selection on map
     if (f.cells && window.selected) {
       window.selected.clear();
@@ -2276,7 +2307,8 @@ updateOnlineStatus();
       if (window.updateSidebar) window.updateSidebar();
     }
     closeMfModal();
-    // Scroll sidebar to top so form is visible
+    // Regenerate ATC email from loaded data
+    setTimeout(() => { if (window.generateEmail) generateEmail(); }, 50);
     const sb = document.querySelector('.sb-scroll');
     if (sb) sb.scrollTop = 0;
   };

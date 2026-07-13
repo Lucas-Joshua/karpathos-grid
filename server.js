@@ -152,16 +152,16 @@ app.delete('/api/admin/codes/:id', requireAuth('pilot'), (req, res) => {
   const id = parseInt(req.params.id);
   if (!id) return res.status(400).json({ error: 'Invalid id' });
 
-  // Prevent pilot from revoking their own active code
-  const raw  = (req.headers.authorization || '').replace(/^Bearer\s+/i, '');
-  const user = verifyToken(raw);
-  if (user && user.codeId === id) {
-    return res.status(400).json({ error: 'Cannot revoke your own active code' });
-  }
-
   const fresh = loadDB();
   const row   = fresh.codes.find(c => c.id === id);
   if (!row) return res.status(404).json({ error: 'Not found' });
+
+  // Prevent deleting if it would leave the role with no active codes
+  const othersActive = fresh.codes.filter(c => c.id !== id && c.role === row.role && c.active);
+  if (othersActive.length === 0) {
+    return res.status(400).json({ error: `Cannot delete the only active ${row.role} code` });
+  }
+
   row.active = false;
   saveDB(fresh);
   res.json({ success: true });

@@ -1,0 +1,7 @@
+{
+  "PILOT_CODE": "1234",
+  "ATC_CODE": "5678",
+  "JWT_SECRET": "change-this-to-a-long-random-string",
+  "DATA_DIR": "/data",
+  "PORT": "3000"
+}
