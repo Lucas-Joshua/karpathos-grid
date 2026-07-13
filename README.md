@@ -15,7 +15,7 @@ A web-based UAS (drone) flight coordination system for Karpathos AFIS (LGKP). Co
 
 ## Access codes
 
-Codes are **numeric only** (minimum 4 digits). They are stored in the SQLite database and survive server restarts.
+Codes are **numeric only** (minimum 4 digits). They are stored in `data/db.json` and survive server restarts.
 
 | Role | Default code | Notes |
 |------|-------------|-------|
@@ -31,7 +31,7 @@ Codes are **numeric only** (minimum 4 digits). They are stored in the SQLite dat
 - **Pilot** — logs into `index.html`, can plan flights, see the flight calendar, and manage access codes via the ⚙ Codes button.
 - **ATC / AFIS** — logs into `atc.html` (or is redirected there when selecting ATC on the login screen). Can see all submitted flights and check last-login times.
 
-If a pilot navigates to `atc.html`, they are automatically redirected to `index.html`.
+Both roles can visit either page. ATC visiting `index.html` sees the grid but the "Schedule flight" button is hidden. Pilot visiting `atc.html` sees the ATC dashboard but the 📋 Logins button is hidden.
 
 ---
 
@@ -54,8 +54,8 @@ Click **⚙ Codes** in the top-right of the pilot tool to:
 | `PILOT_CODE` | Initial pilot code (seeded once on first start) | `1234` |
 | `ATC_CODE` | Initial ATC code (seeded once on first start) | `5678` |
 | `JWT_SECRET` | Secret used to sign auth tokens — **change this!** | dev fallback |
-| `DATA_DIR` | Path to store the SQLite database | `./data` |
-| `PORT` | HTTP port | `3000` |
+| `DATA_DIR` | Path to store `db.json` | `./data` |
+| `PORT` | HTTP port (set automatically by Railway — do not override) | `3000` |
 
 > Set these in Railway → Service → Variables before the first deploy.
 
@@ -110,6 +110,45 @@ Server (server.js / Express — pure Node.js, no native dependencies)
 ```
 
 Tokens are **HMAC-SHA256 signed**, stored in `localStorage`, valid for 7 days. Revoking a code immediately invalidates all tokens issued with that code (checked on every request).
+
+---
+
+## ⚠️ Grid cell ID convention — do not change
+
+**This is critical.** Cell IDs (e.g. `C24`) must mean the same thing in every part of the system. A mismatch means a pilot flies in a different sector than ATC approved — a safety issue.
+
+### The rule
+
+> **Row 1 = northernmost row. Row 29 = southernmost row.**
+> Columns A–I run west to east.
+
+### How the grid loop works
+
+Both `index.html` and `atc.html` build the Leaflet grid with the same loop:
+
+```js
+for (let r = 0; r < ROWS; r++) {        // r=0 starts at B.south (southernmost)
+  const id = colLetter(c-2) + (ROWS - r); // ROWS-r = tool row number (1=north)
+}
+```
+
+Because the loop starts at `B.south` (the geographic bottom), `r=0` is the southernmost cell. To get the correct tool row number (1 at the top/north), the formula is `ROWS - r`, **not** `r + 1`.
+
+Using `r + 1` would label the southernmost cell as row 1, inverting the entire grid — so `C24` in the pilot tool would highlight a completely different cell in the ATC view.
+
+### Where this formula is used
+
+| File | Location | Purpose |
+|------|----------|---------|
+| `index.html` | Leaflet grid loop | Pilot map cell IDs |
+| `index.html` | `exportReferenceMap()` — steps 2, 3, 5 | Reference map PNG labels |
+| `atc.html` | Leaflet grid loop | ATC map cell IDs |
+
+The mini SVG preview in `atc.html` (flight card thumbnail) uses `r+1` — that is intentional because the SVG renders top-to-bottom (r=0 = visual top = north = row 1), so `r+1` is correct there.
+
+### If you ever touch the grid bounds or cell size
+
+Verify that `C24` highlights the same physical area on both `index.html` and `atc.html` before deploying.
 
 ---
 

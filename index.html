@@ -364,7 +364,9 @@
       color: var(--accent); width: 54px; text-align: center;
       background: var(--bg); border: 1px solid var(--border); border-radius: 6px;
       padding: 4px 0; letter-spacing: .04em; line-height: 1.1;
+      font-family: inherit; outline: none; cursor: text;
     }
+    .tp-digit:focus { border-color: var(--accent); }
     .tp-sep { font-size: 34px; font-weight: 800; color: var(--dim); margin-bottom: 2px; }
     .tp-btns { display: flex; gap: 8px; width: 100%; }
     .tp-ok {
@@ -643,7 +645,7 @@
     </div>
 
     <!-- Weather widget -->
-    <div class="wx-widget" id="wxWidget" onclick="toggleWxPopup()" title="Weer Karpathos — klik voor details">
+    <div class="wx-widget" id="wxWidget" onclick="toggleWxPopup()" title="Weather Karpathos — click for details">
       <span class="wx-icon" id="wxIcon">⏳</span>
       <span class="wx-temp" id="wxTemp">--°</span>
       <span class="wx-sep">·</span>
@@ -677,7 +679,7 @@
       <div class="wx-popup-foot">
         <a href="https://www.windy.com/?35.507,27.213,11" target="_blank" rel="noopener">Open in Windy →</a>
         &nbsp;·&nbsp;
-        <a href="https://www.meteoblue.com/nl/weer/week/karpathos_griekenland_254456" target="_blank" rel="noopener">Meteoblue →</a>
+        <a href="https://www.meteoblue.com/en/weather/week/karpathos_greece_254456" target="_blank" rel="noopener">Meteoblue →</a>
       </div>
     </div>
   </div>
@@ -741,7 +743,7 @@
               </div>
             </div>
             <div class="fg">
-              <label>Omschrijving / doel vlucht</label>
+              <label>Description / flight purpose</label>
               <textarea id="flightPurpose" rows="2" placeholder="e.g. coastal film shoot, wind turbine inspection…" style="width:100%;resize:vertical;"></textarea>
             </div>
             <button id="scheduleBtn" class="btn btn-blue" onclick="scheduleToATC()" style="margin-top:8px;">
@@ -1131,7 +1133,7 @@ function buildAxisLabels(){
 
 buildAxisLabels();
 
-// Als labelsLayer (layer-control toggle "Cell labels") aan/uit wordt gezet,
+// When labelsLayer (layer-control toggle "Cell labels") is toggled on/off,
 // werkt dat nu als aan/uit voor de as-labels.
 function syncLabels(){
   if(map.hasLayer(labelsLayer)){
@@ -1168,7 +1170,7 @@ const ATZ_POLY=[[35.42344,27.24823],[35.4399,27.24623],[35.45572,27.24034],[35.4
 
 const OLY_POLY=[[35.73798,27.28251],[35.752,27.28081],[35.76549,27.27577],[35.77792,27.26758],[35.78881,27.25656],[35.79774,27.24314],[35.80438,27.22782],[35.80847,27.2112],[35.80985,27.19392],[35.80847,27.17664],[35.80438,27.16002],[35.79774,27.1447],[35.78881,27.13128],[35.77792,27.12026],[35.76549,27.11208],[35.752,27.10703],[35.73798,27.10533],[35.72395,27.10703],[35.71046,27.11208],[35.69802,27.12026],[35.68711,27.13128],[35.67817,27.1447],[35.67151,27.16002],[35.66742,27.17664],[35.66604,27.19392],[35.66742,27.2112],[35.67151,27.22782],[35.67817,27.24314],[35.68711,27.25656],[35.69802,27.26758],[35.71046,27.27577],[35.72395,27.28081],[35.73798,27.28251]];
 
-// interactive:false → kliks vallen door naar de grid-cellen eronder
+// interactive:false → clicks pass through to the grid cells below
 L.polygon(CTR_POLY,{color:'#FFA500',weight:2.5,fillColor:'#FFA500',fillOpacity:0.07,dashArray:'10 5',interactive:false}).addTo(airLayer);
 L.polygon(LGKP_POLY,{color:'#FF0000',weight:2,fillColor:'#FF0000',fillOpacity:0.20,interactive:false}).addTo(airLayer);
 L.polygon(ATZ_POLY,{color:'#FF0000',weight:2,fillColor:'#FF0000',fillOpacity:0.15,dashArray:'5 3',interactive:false}).addTo(airLayer);
@@ -1258,7 +1260,7 @@ function sortedCells(){
 // ════════════════════════════════════════════════════
 function buildShareURL(){
   const s=sortedCells();
-  const base=window.location.href.split('#')[0];
+  const base=window.location.origin+'/atc';
   return s.length ? `${base}#cells=${s.join(',')}` : base;
 }
 
@@ -1409,12 +1411,10 @@ function generateEmail(){
   const subjectCells=s.slice(0,3).join(',')+(s.length>3?`+${s.length-3}`:'');
   const subject=`UAS NOTIF - Karpathos - ${dateVal||'TBD'} - Sectors ${subjectCells}`;
 
-  // Shareable grid URL with current cell selection
+  // Shareable grid URL pointing to ATC view
   const gridUrl=(()=>{
-    try{
-      const base=window.location.href.split('#')[0];
-      return base+'#cells='+s.join(',');
-    }catch{ return ''; }
+    try{ return window.location.origin+'/atc#cells='+s.join(','); }
+    catch{ return ''; }
   })();
 
   const ctrBlock=hasCTR?
@@ -1558,7 +1558,7 @@ function togglePanel(hdr){
 //  SCHEDULE TO ATC  (schrijft naar gedeelde atc-grid-db)
 // ════════════════════════════════════════════════════
 function scheduleToATC(){
-  if(!selected.size){ alert('Selecteer eerst minimaal één cel op de kaart.'); return; }
+  if(!selected.size){ alert('Please select at least one cell on the map first.'); return; }
   const cellIds = sortedCells();
   const flight = {
     id:        Date.now(),
@@ -2003,13 +2003,19 @@ updateOnlineStatus();
     <div class="tp-clock">
       <div class="tp-unit">
         <button onclick="stepHour(1)">▲</button>
-        <div class="tp-digit" id="tp-h">00</div>
+        <input class="tp-digit" id="tp-h" type="text" inputmode="numeric" maxlength="2" value="00"
+          oninput="this.value=this.value.replace(/\D/g,''); _ph=Math.min(23,parseInt(this.value||0))||0;"
+          onblur="this.value=String(_ph).padStart(2,'0')"
+          onfocus="this.select()"/>
         <button onclick="stepHour(-1)">▼</button>
       </div>
       <div class="tp-sep">:</div>
       <div class="tp-unit">
         <button onclick="stepMin(5)">▲</button>
-        <div class="tp-digit" id="tp-m">00</div>
+        <input class="tp-digit" id="tp-m" type="text" inputmode="numeric" maxlength="2" value="00"
+          oninput="this.value=this.value.replace(/\D/g,''); _pm=Math.min(59,parseInt(this.value||0))||0;"
+          onblur="this.value=String(_pm).padStart(2,'0')"
+          onfocus="this.select()"/>
         <button onclick="stepMin(-5)">▼</button>
       </div>
     </div>
@@ -2026,7 +2032,7 @@ updateOnlineStatus();
   let _ph = 0, _pm = 0;
 
   function pad(n){ return String(n).padStart(2,'0'); }
-  function renderPicker(){ document.getElementById('tp-h').textContent=pad(_ph); document.getElementById('tp-m').textContent=pad(_pm); }
+  function renderPicker(){ document.getElementById('tp-h').value=pad(_ph); document.getElementById('tp-m').value=pad(_pm); }
 
   window.openPicker = function(inputId, labelText){
     _pickerTarget = document.getElementById(inputId);
@@ -2081,9 +2087,9 @@ window.toggleTz = function(){
 (function(){
   const LAT = 35.507, LON = 27.213;
   const WMO = {0:'☀',1:'🌤',2:'⛅',3:'☁',45:'🌫',48:'🌫',51:'🌦',53:'🌦',55:'🌧',61:'🌧',63:'🌧',65:'🌧',71:'🌨',73:'🌨',75:'🌨',80:'🌦',81:'🌧',82:'🌧',95:'⛈',96:'⛈',99:'⛈'};
-  const WMO_DESC = {0:'Helder',1:'Overwegend helder',2:'Gedeeltelijk bewolkt',3:'Bewolkt',45:'Mist',51:'Lichte motregen',53:'Motregen',61:'Lichte regen',63:'Regen',65:'Zware regen',71:'Lichte sneeuw',80:'Lichte buien',81:'Buien',95:'Onweer'};
-  const DAYS_NL = ['Zo','Ma','Di','Wo','Do','Vr','Za'];
-  const DAY_LABELS = ['Vandaag','Morgen','Overmorgen'];
+  const WMO_DESC = {0:'Clear',1:'Mostly clear',2:'Partly cloudy',3:'Overcast',45:'Fog',51:'Light drizzle',53:'Drizzle',61:'Light rain',63:'Rain',65:'Heavy rain',71:'Light snow',80:'Light showers',81:'Showers',95:'Thunderstorm'};
+  const DAYS_EN = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+  const DAY_LABELS = ['Today','Tomorrow','Day after'];
   let wxData = null;
   let popupOpen = false;
 
@@ -2122,7 +2128,7 @@ window.toggleTz = function(){
     let html = '';
     for (let i = 0; i < 3; i++){
       const date  = new Date(d.time[i] + 'T12:00:00');
-      const label = DAY_LABELS[i] || DAYS_NL[date.getDay()];
+      const label = DAY_LABELS[i] || DAYS_EN[date.getDay()];
       const icon  = WMO[d.weathercode[i]] || '🌡';
       const desc  = WMO_DESC[d.weathercode[i]] || '';
       const hi    = Math.round(d.temperature_2m_max[i]);
