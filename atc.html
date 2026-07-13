@@ -250,7 +250,7 @@
       position: fixed; inset: 0; background: var(--bg); z-index: 99999;
       display: flex; align-items: center; justify-content: center;
     }
-    .ls-box { background: var(--panel); border: 1px solid var(--border); border-radius: 14px; padding: 36px 40px; width: 320px; max-width: 92vw; text-align: center; }
+    .ls-box { background: var(--panel); border: 1px solid var(--border); border-radius: 14px; padding: 36px 40px; width: 440px; max-width: 94vw; text-align: center; }
     .ls-logo  { font-size: 30px; margin-bottom: 10px; }
     .ls-title { font-size: 15px; font-weight: 700; color: var(--accent); margin-bottom: 4px; }
     .ls-sub   { font-size: 11px; color: var(--muted); margin-bottom: 22px; }
@@ -263,6 +263,13 @@
     .ls-submit:hover { opacity: .88; }
     .ls-submit:disabled { opacity: .5; cursor: not-allowed; }
     .ls-err { font-size: 11px; color: var(--red); min-height: 16px; }
+    .ls-sec-toggle { font-size: 10px; color: var(--muted); background: none; border: none; cursor: pointer; margin-top: 12px; text-decoration: underline; font-family: inherit; }
+    .ls-sec-toggle:hover { color: var(--dim); }
+    .ls-sec-panel { display: none; margin-top: 10px; background: rgba(255,255,255,.04); border: 1px solid var(--border); border-radius: 8px; padding: 12px 14px; text-align: left; font-size: 10.5px; color: var(--muted); line-height: 1.7; }
+    .ls-sec-panel.open { display: block; }
+    .ls-sec-panel strong { color: var(--dim); }
+    .ls-sec-row { display: flex; gap: 8px; margin-bottom: 4px; }
+    .ls-sec-row span:first-child { flex-shrink: 0; }
 
     /* ── Responsive ── */
     @media (max-width: 820px) {
@@ -948,6 +955,26 @@ waitForLeaflet(function() {
       onkeydown="if(event.key==='Enter')lsLogin()"/>
     <div id="lsErr" class="ls-err"></div>
     <button class="ls-submit" id="lsSubmit" onclick="lsLogin()">Login →</button>
+    <button class="ls-sec-toggle" onclick="this.nextElementSibling.classList.toggle('open')">🔒 Security &amp; Privacy</button>
+    <div class="ls-sec-panel">
+      <div style="font-size:10px;font-weight:700;color:var(--dim);margin-bottom:8px;letter-spacing:.05em;">THIS APP</div>
+      <div class="ls-sec-row"><span>🔐</span><span><strong>Authentication:</strong> HMAC-SHA256 signed tokens — no passwords stored, sessions expire after 7 days</span></div>
+      <div class="ls-sec-row"><span>🔒</span><span><strong>Transport:</strong> HTTPS only — all data encrypted in transit</span></div>
+      <div class="ls-sec-row"><span>🛡️</span><span><strong>Access control:</strong> Numeric access codes required for every session — ATC and Pilot roles are separated</span></div>
+      <div class="ls-sec-row"><span>💾</span><span><strong>Data stored:</strong> Access codes and flight requests only — stored on a Railway persistent volume</span></div>
+      <div class="ls-sec-row"><span>📊</span><span><strong>Analytics:</strong> <a href="https://www.goatcounter.com/help/privacy" target="_blank" style="color:var(--accent)">GoatCounter</a> — anonymous page views only, no cookies, no personal data collected</span></div>
+      <div class="ls-sec-row"><span>🚫</span><span><strong>No data sharing:</strong> No data is shared with or sold to third parties</span></div>
+
+      <div style="font-size:10px;font-weight:700;color:var(--dim);margin:10px 0 8px;letter-spacing:.05em;">SERVER INFRASTRUCTURE — RAILWAY</div>
+      <div class="ls-sec-row"><span>🇳🇱</span><span><strong>Location:</strong> EU West — Amsterdam, Netherlands (Google Cloud)</span></div>
+      <div class="ls-sec-row"><span>✅</span><span><strong>Certifications:</strong> SOC 2 Type 2 · SOC 3 · GDPR · HIPAA compliant</span></div>
+      <div class="ls-sec-row"><span>🔏</span><span><strong>Encryption at rest:</strong> All stored data is encrypted on disk</span></div>
+      <div class="ls-sec-row"><span>🛡️</span><span><strong>Network:</strong> Firewall, traffic filtering and DDoS protection enabled</span></div>
+      <div class="ls-sec-row"><span>🔍</span><span><strong>Audited:</strong> Annual penetration tests and SOC 2 audits</span></div>
+      <div style="margin-top:8px;font-size:10px;">
+        <a href="https://trust.railway.com" target="_blank" style="color:var(--accent)">→ View Railway Trust Center (trust.railway.com)</a>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -1032,11 +1059,16 @@ waitForLeaflet(function() {
         if (d.role) lsSelectRole(d.role);
         _onAuth(d.role);
       } else {
+        // Token invalid or expired — force re-login
         localStorage.removeItem('uas-token');
         localStorage.removeItem('uas-role');
       }
     } catch(e){
-      if (role && role === 'atc') _onAuth(role);
+      // Server unreachable — do NOT grant access, show error
+      localStorage.removeItem('uas-token');
+      localStorage.removeItem('uas-role');
+      const err = document.getElementById('lsError');
+      if (err) err.textContent = 'Server unreachable — please try again.';
     }
   })();
 })();

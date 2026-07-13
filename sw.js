@@ -10,11 +10,10 @@
 const CACHE_NAME = 'uas-grid-v3';
 
 const APP_SHELL = [
-  './',
-  './index.html',
   './manifest.json',
   // Leaflet CSS is inlined in index.html; cache the JS from primary CDN
   'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js',
+  // HTML pages are intentionally NOT pre-cached — always fetch fresh from server
 ];
 
 // ── INSTALL: pre-cache app shell ──────────────────
