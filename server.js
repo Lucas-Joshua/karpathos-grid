@@ -298,7 +298,8 @@ app.use(express.static(path.join(__dirname), {
     if (p.endsWith('sw.js') || p.endsWith('manifest.json')) res.setHeader('Cache-Control', 'no-cache');
   },
 }));
-app.get('*', (_req, res) => res.sendFile(path.join(__dirname, 'index.html')));
+app.get('/atc', (_req, res) => res.sendFile(path.join(__dirname, 'atc.html')));
+app.get('*',    (_req, res) => res.sendFile(path.join(__dirname, 'index.html')));
 
 app.listen(PORT, () => {
   const active = loadDB().codes.filter(c => c.active);
