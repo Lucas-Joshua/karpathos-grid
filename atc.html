@@ -428,6 +428,15 @@ function waitForLeaflet(cb) {
 
 waitForLeaflet(function() {
 
+  // ── Timezone: times stored as UTC, displayed as EEST (UTC+3) ───────────
+  const TZ_OFFSET = 3; // hours ahead of UTC for Karpathos (EEST)
+  function shiftTime(hhmm, hours) {
+    if (!hhmm || !hhmm.includes(':')) return hhmm;
+    const [h, m] = hhmm.split(':').map(Number);
+    const total  = ((h + hours) % 24 + 24) % 24;
+    return String(total).padStart(2,'0') + ':' + String(m).padStart(2,'0');
+  }
+
   // ── Live clock — always shows Karpathos time (EEST = UTC+3) ────────────
   const clockEl = document.getElementById('hdr-clock');
   const KARPATHOS_TZ = 'Europe/Athens'; // EEST UTC+3 in summer
@@ -657,7 +666,7 @@ waitForLeaflet(function() {
           </div>
           <span class="fcard-date">#${escHtml(f.id)} · ${dStr}</span>
         </div>
-        <div class="fcard-time">${escHtml(f.timeFrom||'??:??')} – ${escHtml(f.timeTo||'??:??')}</div>
+        <div class="fcard-time">${escHtml(shiftTime(f.timeFrom, TZ_OFFSET)||'??:??')} – ${escHtml(shiftTime(f.timeTo, TZ_OFFSET)||'??:??')} <span style="font-size:10px;font-weight:400;opacity:.6">EEST</span></div>
         <div class="fcard-pilot"><strong>${escHtml(f.pilotName||'Unknown')}</strong>${f.droneReg?' · '+escHtml(f.droneReg):''}${f.droneType?' · '+escHtml(f.droneType):''}</div>
         <div class="fcard-body">
           <div class="fcard-mini">${miniGrid(f.cells)}</div>
@@ -738,8 +747,8 @@ waitForLeaflet(function() {
     document.getElementById('f-reg').value         = flight?.droneReg   || '';
     document.getElementById('f-type').value        = flight?.droneType  || '';
     document.getElementById('f-date').value        = flight?.date       || filterDate || '';
-    document.getElementById('f-from').value        = flight?.timeFrom   || '';
-    document.getElementById('f-to').value          = flight?.timeTo     || '';
+    document.getElementById('f-from').value        = shiftTime(flight?.timeFrom, TZ_OFFSET) || '';
+    document.getElementById('f-to').value          = shiftTime(flight?.timeTo,   TZ_OFFSET) || '';
     document.getElementById('f-notes').value       = flight?.notes      || '';
     document.getElementById('f-afis').value        = flight?.afisNote   || '';
 
@@ -798,8 +807,8 @@ waitForLeaflet(function() {
       droneReg:  document.getElementById('f-reg').value.trim(),
       droneType: document.getElementById('f-type').value.trim(),
       date:      document.getElementById('f-date').value,
-      timeFrom:  document.getElementById('f-from').value,
-      timeTo:    document.getElementById('f-to').value,
+      timeFrom:  shiftTime(document.getElementById('f-from').value, -TZ_OFFSET),
+      timeTo:    shiftTime(document.getElementById('f-to').value,   -TZ_OFFSET),
       notes:     document.getElementById('f-notes').value.trim(),
       afisNote:  document.getElementById('f-afis').value.trim(),
       cells,
@@ -882,7 +891,7 @@ waitForLeaflet(function() {
       let events = dayFlights.length
         ? dayFlights.map(f => {
             const pilot = escHtml((f.pilotName||'—').split(' ')[0]);
-            const time  = f.timeFrom ? `${escHtml(f.timeFrom)}${f.timeTo?'–'+escHtml(f.timeTo):''}` : '';
+            const time  = f.timeFrom ? `${escHtml(shiftTime(f.timeFrom, TZ_OFFSET))}${f.timeTo?'–'+escHtml(shiftTime(f.timeTo, TZ_OFFSET)):''}` : '';
             return `<div class="cal-event ${f.status}" data-id="${escHtml(f.id)}" title="${escHtml(f.pilotName||'')} · ${f.cells.length} cells">
               <div>${pilot}</div>
               ${time ? `<div class="cal-event-time">${time}</div>` : ''}
