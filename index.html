@@ -1203,6 +1203,21 @@ function clearAll(){
   document.getElementById('emailWrap').style.display='none';
 }
 
+// Exposed for mfEditFlight (IIFE scope can't access selected directly)
+window.restoreCells = function(cellIds){
+  clearAll();
+  cellIds.forEach(id=>{
+    if(cells[id]){
+      selected.add(id);
+      cells[id].rect.setStyle(cells[id].isCTR ? S_SEL_CTR : S_SEL);
+    }
+  });
+  renderTags(); updateCTRWarning(); updateHash();
+};
+
+// Tracks which flight is being edited (null = new flight)
+window._editingFlightId = null;
+
 function removeCell(id){
   selected.delete(id);
   cells[id].rect.setStyle(cells[id].baseStyle);
@@ -1560,10 +1575,11 @@ function togglePanel(hdr){
 function scheduleToATC(){
   if(!selected.size){ alert('Please select at least one cell on the map first.'); return; }
   const cellIds = sortedCells();
+  const editingId = window._editingFlightId;
   const flight = {
-    id:        Date.now(),
+    id:        editingId || Date.now(),
     status:    'pending',
-    created:   Date.now(),
+    created:   editingId || Date.now(),
     pilotName: v('pilotName')     || '[NAME]',
     droneReg:  v('uasSerial')     || '',
     droneType: v('uasModel')      || '',
@@ -1577,17 +1593,22 @@ function scheduleToATC(){
   const req = indexedDB.open('atc-grid-db', 1);
   req.onupgradeneeded = e => e.target.result.createObjectStore('flights',{keyPath:'id'});
   req.onsuccess = e => {
-    const db  = e.target.result;
-    const tx  = db.transaction('flights','readwrite');
+    const db = e.target.result;
+    const tx = db.transaction('flights','readwrite');
     tx.objectStore('flights').put(flight);
     tx.oncomplete = () => {
+      // Reset edit mode
+      window._editingFlightId = null;
+      const btn = document.getElementById('scheduleBtn');
+      if (btn) btn.textContent = '📅 Schedule flight for ATC';
       const fl = document.getElementById('scheduleFlash');
+      fl.textContent = editingId ? '✓ Flight updated' : '✓ Flight scheduled — visible in ATC View';
       fl.style.display = 'block';
       setTimeout(()=>{ fl.style.display='none'; }, 3000);
       if(window.renderMyFlights) renderMyFlights();
     };
   };
-  req.onerror = () => alert('Opslaan mislukt — IndexedDB niet beschikbaar.');
+  req.onerror = () => alert('Could not save — IndexedDB unavailable.');
 }
 
 // ════════════════════════════════════════════════════
@@ -2303,18 +2324,17 @@ window.toggleTz = function(){
     set('flightPurpose', f.notes  || '');
     // Convert stored UTC times to current display timezone
     const tz = window._tzOffset || 0;
-    set('timeFrom', shiftTime(f.timeFrom,  tz));
-    set('timeTo',   shiftTime(f.timeTo,    tz));
+    set('timeFrom', shiftTime(f.timeFrom, tz));
+    set('timeTo',   shiftTime(f.timeTo,   tz));
     // Restore cell selection on map
-    if (f.cells && window.selected) {
-      window.selected.clear();
-      f.cells.forEach(c => window.selected.add(c));
-      if (window.refreshGrid) window.refreshGrid();
-      if (window.updateSidebar) window.updateSidebar();
-    }
+    if (f.cells && window.restoreCells) window.restoreCells(f.cells);
+    // Track which flight is being edited so submit updates instead of duplicates
+    window._editingFlightId = f.id;
+    // Update schedule button to indicate edit mode
+    const btn = document.getElementById('scheduleBtn');
+    if (btn) btn.textContent = '💾 Update flight';
     closeMfModal();
-    // Regenerate ATC email from loaded data
-    setTimeout(() => { if (window.generateEmail) generateEmail(); }, 50);
+    setTimeout(() => { if (window.generateEmail) generateEmail(); }, 100);
     const sb = document.querySelector('.sb-scroll');
     if (sb) sb.scrollTop = 0;
   };
@@ -2447,6 +2467,7 @@ window.toggleTz = function(){
   }
 
   window.openAdmin = async function(){
+    if (localStorage.getItem('uas-role') !== 'pilot') return; // ATC cannot access code management
     document.getElementById('adminModal').style.display = 'flex';
     document.getElementById('adminAddErr').textContent = '';
     document.getElementById('adminNewCode').value  = '';
