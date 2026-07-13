@@ -1274,9 +1274,8 @@ function sortedCells(){
 //  URL HASH SYNC
 // ════════════════════════════════════════════════════
 function buildShareURL(){
-  const s=sortedCells();
-  const base=window.location.origin+'/atc';
-  return s.length ? `${base}#cells=${s.join(',')}` : base;
+  if (window._lastFlightId) return window.location.origin + '/atc?id=' + window._lastFlightId;
+  return window.location.origin + '/atc';
 }
 
 function updateHash(){
@@ -1426,10 +1425,12 @@ function generateEmail(){
   const subjectCells=s.slice(0,3).join(',')+(s.length>3?`+${s.length-3}`:'');
   const subject=`UAS NOTIF - Karpathos - ${dateVal||'TBD'} - Sectors ${subjectCells}`;
 
-  // Shareable grid URL pointing to ATC view
+  // Shareable link — use flight ID if already scheduled, otherwise generic ATC link
   const gridUrl=(()=>{
-    try{ return window.location.origin+'/atc#cells='+s.join(','); }
-    catch{ return ''; }
+    try{
+      if (window._lastFlightId) return window.location.origin+'/atc?id='+window._lastFlightId;
+      return window.location.origin+'/atc';
+    } catch{ return ''; }
   })();
 
   const ctrBlock=hasCTR?
@@ -1570,16 +1571,15 @@ function togglePanel(hdr){
 //  MAP EXPORT
 // ════════════════════════════════════════════════════
 // ════════════════════════════════════════════════════
-//  SCHEDULE TO ATC  (schrijft naar gedeelde atc-grid-db)
+//  SCHEDULE TO ATC  (server-side via /api/flights)
 // ════════════════════════════════════════════════════
-function scheduleToATC(){
+async function scheduleToATC(){
   if(!selected.size){ alert('Please select at least one cell on the map first.'); return; }
-  const cellIds = sortedCells();
+  const cellIds   = sortedCells();
   const editingId = window._editingFlightId;
-  const flight = {
-    id:        editingId || Date.now(),
-    status:    'pending',
-    created:   editingId || Date.now(),
+  const token     = localStorage.getItem('uas-token') || '';
+
+  const payload = {
     pilotName: v('pilotName')     || '[NAME]',
     droneReg:  v('uasSerial')     || '',
     droneType: v('uasModel')      || '',
@@ -1587,28 +1587,53 @@ function scheduleToATC(){
     timeFrom:  shiftTime(v('timeFrom'), -(window._tzOffset||0)) || '',
     timeTo:    shiftTime(v('timeTo'),   -(window._tzOffset||0)) || '',
     notes:     v('flightPurpose') || '',
-    afisNote:  '',
+    maxAlt:    v('maxAlt')        || '',
     cells:     cellIds,
   };
-  const req = indexedDB.open('atc-grid-db', 1);
-  req.onupgradeneeded = e => e.target.result.createObjectStore('flights',{keyPath:'id'});
-  req.onsuccess = e => {
-    const db = e.target.result;
-    const tx = db.transaction('flights','readwrite');
-    tx.objectStore('flights').put(flight);
-    tx.oncomplete = () => {
-      // Reset edit mode
-      window._editingFlightId = null;
-      const btn = document.getElementById('scheduleBtn');
-      if (btn) btn.textContent = '📅 Schedule flight for ATC';
-      const fl = document.getElementById('scheduleFlash');
-      fl.textContent = editingId ? '✓ Flight updated' : '✓ Flight scheduled — visible in ATC View';
-      fl.style.display = 'block';
-      setTimeout(()=>{ fl.style.display='none'; }, 3000);
-      if(window.renderMyFlights) renderMyFlights();
-    };
-  };
-  req.onerror = () => alert('Could not save — IndexedDB unavailable.');
+
+  const btn = document.getElementById('scheduleBtn');
+  const fl  = document.getElementById('scheduleFlash');
+
+  try {
+    let savedFlight;
+    if (editingId) {
+      const r = await fetch('/api/flights/' + editingId, {
+        method: 'PUT',
+        headers: { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+      if (!r.ok) throw new Error((await r.json()).error || r.status);
+      savedFlight = (await r.json()).flight;
+    } else {
+      const r = await fetch('/api/flights', {
+        method: 'POST',
+        headers: { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ...payload, status: 'pending' }),
+      });
+      if (!r.ok) throw new Error((await r.json()).error || r.status);
+      savedFlight = (await r.json()).flight;
+    }
+
+    window._editingFlightId = null;
+    window._lastFlightId    = savedFlight.id;
+    if (btn) btn.textContent = '📅 Schedule flight for ATC';
+
+    const link = window.location.origin + '/atc?id=' + savedFlight.id;
+    fl.innerHTML = editingId
+      ? `✓ Updated — <a href="${link}" target="_blank" style="color:#60aaff">ATC link #${savedFlight.id}</a>`
+      : `✓ Scheduled! Share with ATC: <a href="${link}" target="_blank" style="color:#60aaff">/atc?id=${savedFlight.id}</a>`;
+    fl.style.display = 'block';
+    setTimeout(() => fl.style.display = 'none', 7000);
+
+    // Update the shareable link box
+    const shareEl = document.getElementById('shareUrl');
+    if (shareEl) { shareEl.textContent = link; shareEl.style.display = ''; }
+
+    if (window.renderMyFlights) renderMyFlights();
+
+  } catch(err) {
+    alert('Could not save flight: ' + err.message);
+  }
 }
 
 // ════════════════════════════════════════════════════
@@ -2068,6 +2093,12 @@ updateOnlineStatus();
   window.closePicker = function(){ document.getElementById('timePicker').style.display='none'; _pickerTarget=null; };
 
   window.confirmPicker = function(){
+    // Read directly from the input elements — avoids the closure issue
+    // where inline oninput handlers can't reach IIFE-scoped _ph/_pm.
+    const hVal = document.getElementById('tp-h').value;
+    const mVal = document.getElementById('tp-m').value;
+    _ph = Math.min(23, parseInt(hVal || '0') || 0);
+    _pm = Math.min(59, parseInt(mVal || '0') || 0);
     if(_pickerTarget){ _pickerTarget.value=pad(_ph)+':'+pad(_pm); _pickerTarget.dispatchEvent(new Event('change')); }
     closePicker();
   };
@@ -2197,7 +2228,7 @@ window.toggleTz = function(){
 <script>
 (function(){
   const MONTHS = ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Aug','Sep','Okt','Nov','Dec'];
-  const DAYS   = ['Ma','Di','Wo','Do','Vr','Za','Zo'];
+  const DAYS   = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
   let calWeek = getMonday(new Date());
   let selFlight = null;
 
@@ -2207,28 +2238,21 @@ window.toggleTz = function(){
     dt.setHours(0,0,0,0); return dt;
   }
   function isoDate(d){ return d.toISOString().slice(0,10); }
-  function dbGetAll(){
-    return new Promise((res,rej)=>{
-      const r = indexedDB.open('atc-grid-db',1);
-      r.onupgradeneeded = e => e.target.result.createObjectStore('flights',{keyPath:'id'});
-      r.onsuccess = e => {
-        const q = e.target.result.transaction('flights','readonly').objectStore('flights').getAll();
-        q.onsuccess = ev => res(ev.target.result);
-        q.onerror   = ev => rej(ev.target.error);
-      };
-      r.onerror = e => rej(e.target.error);
-    });
+  async function dbGetAll(){
+    try {
+      const token = localStorage.getItem('uas-token') || '';
+      const r = await fetch('/api/flights', { headers: { 'Authorization': 'Bearer ' + token } });
+      if (!r.ok) return [];
+      return (await r.json()).flights || [];
+    } catch { return []; }
   }
-  function dbDelete(id){
-    return new Promise((res,rej)=>{
-      const r = indexedDB.open('atc-grid-db',1);
-      r.onsuccess = e => {
-        const q = e.target.result.transaction('flights','readwrite').objectStore('flights').delete(id);
-        q.onsuccess = () => res();
-        q.onerror   = ev => rej(ev.target.error);
-      };
-      r.onerror = e => rej(e.target.error);
+  async function dbDelete(id){
+    const token = localStorage.getItem('uas-token') || '';
+    const r = await fetch('/api/flights/' + id, {
+      method: 'DELETE',
+      headers: { 'Authorization': 'Bearer ' + token },
     });
+    if (!r.ok) throw new Error('Delete failed');
   }
 
   window.openMfModal = function(){
@@ -2267,8 +2291,11 @@ window.toggleTz = function(){
       const events = fl.length
         ? fl.map(f => {
             const cellPreview = f.cells.slice(0,3).join(', ')+(f.cells.length>3?` +${f.cells.length-3}`:'');
+            const tz = window._tzOffset || 0;
+            const dispFrom = window.shiftTime ? window.shiftTime(f.timeFrom, tz) : f.timeFrom;
+            const dispTo   = window.shiftTime ? window.shiftTime(f.timeTo,   tz) : f.timeTo;
             return `<div class="mf-cal-event ${f.status}" data-fid="${f.id}" title="${f.cells.join(', ')}">
-              <div>${f.timeFrom||'?'}–${f.timeTo||'?'}</div>
+              <div>${dispFrom||'?'}–${dispTo||'?'}</div>
               <div style="font-weight:400;opacity:.8">${cellPreview}</div>
             </div>`;
           }).join('')
@@ -2280,7 +2307,7 @@ window.toggleTz = function(){
     // Flight click → detail panel
     document.querySelectorAll('.mf-cal-event').forEach(el => {
       el.addEventListener('click', () => {
-        const fid = Number(el.dataset.fid);
+        const fid = el.dataset.fid;   // string id e.g. "01"
         selFlight = all.find(f => f.id === fid) || null;
         if (!selFlight) return;
         // Highlight selected
@@ -2288,9 +2315,13 @@ window.toggleTz = function(){
         el.classList.add('selected');
         const det = document.getElementById('mfDetail');
         const statusColor = {pending:'var(--yellow)',cleared:'var(--green)',denied:'var(--red)'}[selFlight.status] || 'var(--dim)';
+        const _tz = window._tzOffset || 0;
+        const _tzLabel = _tz ? `EEST (UTC+${_tz})` : 'UTC';
+        const _dFrom = window.shiftTime ? window.shiftTime(selFlight.timeFrom, _tz) : selFlight.timeFrom;
+        const _dTo   = window.shiftTime ? window.shiftTime(selFlight.timeTo,   _tz) : selFlight.timeTo;
         det.innerHTML = `<div class="mf-detail-row">
           <span><strong>${selFlight.date||'?'}</strong></span>
-          <span>${selFlight.timeFrom||'?'} – ${selFlight.timeTo||'?'} UTC</span>
+          <span>${_dFrom||'?'} – ${_dTo||'?'} ${_tzLabel}</span>
           <span style="color:${statusColor};font-weight:700">${selFlight.status.toUpperCase()}</span>
         </div>
         <div class="mf-detail-row" style="margin-top:6px;">
@@ -2298,10 +2329,10 @@ window.toggleTz = function(){
         </div>
         ${selFlight.notes ? `<div class="mf-detail-row" style="margin-top:4px;"><span>${selFlight.notes}</span></div>` : ''}
         ${selFlight.afisNote ? `<div class="mf-detail-row" style="margin-top:4px;color:var(--accent);"><span>✈ AFIS: ${selFlight.afisNote}</span></div>` : ''}
-        <div class="mf-detail-actions">
-          <button class="mf-btn-edit"   onclick="mfEditFlight(${selFlight.id})">✏ Load into form</button>
-          <button class="mf-btn-delete" onclick="mfDeleteFlight(${selFlight.id})">🗑 Delete</button>
-        </div>`;
+        ${localStorage.getItem('uas-role') === 'pilot' ? `<div class="mf-detail-actions">
+          <button class="mf-btn-edit"   onclick="mfEditFlight('${selFlight.id}')">✏ Load into form</button>
+          <button class="mf-btn-delete" onclick="mfDeleteFlight('${selFlight.id}')">🗑 Delete</button>
+        </div>` : ''}`;
         det.classList.add('open');
       });
     });
@@ -2309,14 +2340,14 @@ window.toggleTz = function(){
 
   window.mfDeleteFlight = async function(id){
     if (!confirm('Delete this flight?')) return;
-    await dbDelete(id).catch(()=>{});
+    await dbDelete(String(id)).catch(()=>{});
     selFlight = null;
     document.getElementById('mfDetail').classList.remove('open');
     renderMfCal();
   };
 
   window.mfEditFlight = function(id){
-    if (!selFlight || selFlight.id !== id) return;
+    if (!selFlight || String(selFlight.id) !== String(id)) return;
     const f = selFlight;
     const set = (elId, val) => { const el = document.getElementById(elId); if(el) el.value = val||''; };
     set('flightDate',    f.date);
@@ -2329,7 +2360,7 @@ window.toggleTz = function(){
     // Restore cell selection on map
     if (f.cells && window.restoreCells) window.restoreCells(f.cells);
     // Track which flight is being edited so submit updates instead of duplicates
-    window._editingFlightId = f.id;
+    window._editingFlightId = String(f.id);
     // Update schedule button to indicate edit mode
     const btn = document.getElementById('scheduleBtn');
     if (btn) btn.textContent = '💾 Update flight';

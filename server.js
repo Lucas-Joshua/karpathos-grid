@@ -36,6 +36,8 @@ if (!db) {
       { id: 2, code: atcCode,   role: 'atc',   label: 'Default ATC code',   active: true, created: new Date().toISOString() },
     ],
     lastLogins: { pilot: null, atc: null },
+    flights: [],
+    nextFlightId: 1,
   };
   saveDB(db);
   console.log(`[DB] Seeded — pilot: ${pilotCode}  atc: ${atcCode}`);
@@ -224,6 +226,70 @@ app.get('/tiles/:z/:x/:y.png', async (req, res) => {
     console.error('[TILE]', key, err.message);
     res.status(502).send('Tile unavailable');
   }
+});
+
+// ─── Flight endpoints ─────────────────────────────────────────────────────
+
+// GET /api/flights — all flights (pilot + atc)
+app.get('/api/flights', requireAuth('pilot', 'atc'), (_req, res) => {
+  const fresh = loadDB();
+  res.json({ flights: fresh.flights || [] });
+});
+
+// GET /api/flights/:id — single flight
+app.get('/api/flights/:id', requireAuth('pilot', 'atc'), (req, res) => {
+  const fresh = loadDB();
+  const flight = (fresh.flights || []).find(f => f.id === req.params.id);
+  if (!flight) return res.status(404).json({ error: 'Not found' });
+  res.json({ flight });
+});
+
+// POST /api/flights — create (pilot only), returns sequential ID like "01"
+app.post('/api/flights', requireAuth('pilot'), (req, res) => {
+  const fresh = loadDB();
+  if (!fresh.flights)      fresh.flights      = [];
+  if (!fresh.nextFlightId) fresh.nextFlightId = 1;
+  const id = String(fresh.nextFlightId).padStart(2, '0');
+  fresh.nextFlightId++;
+  const flight = { ...req.body, id, created: new Date().toISOString(), status: req.body.status || 'pending' };
+  fresh.flights.push(flight);
+  saveDB(fresh);
+  res.json({ flight });
+});
+
+// PUT /api/flights/:id — full update (pilot + atc can edit details)
+app.put('/api/flights/:id', requireAuth('pilot', 'atc'), (req, res) => {
+  const fresh = loadDB();
+  if (!fresh.flights) return res.status(404).json({ error: 'Not found' });
+  const idx = fresh.flights.findIndex(f => f.id === req.params.id);
+  if (idx === -1) return res.status(404).json({ error: 'Not found' });
+  const existing = fresh.flights[idx];
+  fresh.flights[idx] = { ...existing, ...req.body, id: req.params.id, created: existing.created };
+  saveDB(fresh);
+  res.json({ flight: fresh.flights[idx] });
+});
+
+// PATCH /api/flights/:id/status — update status and/or afisNote (pilot + atc)
+app.patch('/api/flights/:id/status', requireAuth('pilot', 'atc'), (req, res) => {
+  const fresh = loadDB();
+  if (!fresh.flights) return res.status(404).json({ error: 'Not found' });
+  const flight = fresh.flights.find(f => f.id === req.params.id);
+  if (!flight) return res.status(404).json({ error: 'Not found' });
+  if (req.body.status   !== undefined) flight.status   = req.body.status;
+  if (req.body.afisNote !== undefined) flight.afisNote = req.body.afisNote;
+  saveDB(fresh);
+  res.json({ flight });
+});
+
+// DELETE /api/flights/:id — pilot only
+app.delete('/api/flights/:id', requireAuth('pilot'), (req, res) => {
+  const fresh = loadDB();
+  if (!fresh.flights) return res.status(404).json({ error: 'Not found' });
+  const idx = fresh.flights.findIndex(f => f.id === req.params.id);
+  if (idx === -1) return res.status(404).json({ error: 'Not found' });
+  fresh.flights.splice(idx, 1);
+  saveDB(fresh);
+  res.json({ success: true });
 });
 
 // ─── Static files ─────────────────────────────────────────────────────────

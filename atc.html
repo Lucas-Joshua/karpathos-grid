@@ -536,24 +536,45 @@ waitForLeaflet(function() {
     } catch(e){}
   }
 
-  // ── IndexedDB ────────────────────────────────────────
-  const DB_NAME='atc-grid-db', DB_VER=1, DB_STORE='flights';
-  let _db = null;
-
-  function openDB() {
-    if (_db) return Promise.resolve(_db);
-    return new Promise((res,rej) => {
-      const req = indexedDB.open(DB_NAME, DB_VER);
-      req.onupgradeneeded = e => e.target.result.createObjectStore(DB_STORE, {keyPath:'id'});
-      req.onsuccess = e => { _db = e.target.result; res(_db); };
-      req.onerror   = e => rej(e.target.error);
-    });
+  // ── Server API helpers ────────────────────────────────
+  function _authHdr() {
+    const t = localStorage.getItem('uas-token') || '';
+    return { 'Authorization': 'Bearer ' + t, 'Content-Type': 'application/json' };
   }
-  function tx(mode) { return openDB().then(db => db.transaction(DB_STORE,mode).objectStore(DB_STORE)); }
 
-  async function dbPut(flight)    { const s=await tx('readwrite'); return new Promise((r,j)=>{ const q=s.put(flight); q.onsuccess=r; q.onerror=e=>j(e.target.error); }); }
-  async function dbDelete(id)     { const s=await tx('readwrite'); return new Promise((r,j)=>{ const q=s.delete(id); q.onsuccess=r; q.onerror=e=>j(e.target.error); }); }
-  async function dbGetAll()       { const s=await tx('readonly');  return new Promise((r,j)=>{ const q=s.getAll();   q.onsuccess=e=>r(e.target.result); q.onerror=e=>j(e.target.error); }); }
+  async function dbGetAll() {
+    try {
+      const r = await fetch('/api/flights', { headers: _authHdr() });
+      if (!r.ok) return [];
+      return (await r.json()).flights || [];
+    } catch { return []; }
+  }
+
+  async function dbPut(flight) {
+    const r = await fetch('/api/flights/' + flight.id, {
+      method: 'PUT', headers: _authHdr(), body: JSON.stringify(flight),
+    });
+    if (!r.ok) throw new Error('Save failed');
+    return (await r.json()).flight;
+  }
+
+  async function dbDelete(id) {
+    const r = await fetch('/api/flights/' + id, {
+      method: 'DELETE', headers: _authHdr(),
+    });
+    if (!r.ok) throw new Error('Delete failed');
+  }
+
+  async function dbPatchStatus(id, status, afisNote) {
+    const body = {};
+    if (status   !== undefined) body.status   = status;
+    if (afisNote !== undefined) body.afisNote = afisNote;
+    const r = await fetch('/api/flights/' + id + '/status', {
+      method: 'PATCH', headers: _authHdr(), body: JSON.stringify(body),
+    });
+    if (!r.ok) throw new Error('Status update failed');
+    return (await r.json()).flight;
+  }
 
   // ── Mini SVG grid preview ────────────────────────────
   // 9 cols (C–K, index 0–8), 29 rows
@@ -612,7 +633,7 @@ waitForLeaflet(function() {
       card.dataset.id = f.id;
 
       const dStr = f.date
-        ? new Date(f.date+'T12:00:00').toLocaleDateString('nl-NL',{day:'numeric',month:'short',year:'2-digit'})
+        ? new Date(f.date+'T12:00:00').toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'2-digit'})
         : '—';
       const cellStr = f.cells.length <= 7
         ? f.cells.join(', ')
@@ -624,10 +645,10 @@ waitForLeaflet(function() {
           <div class="fcard-status ${f.status}">
             <span class="status-dot ${f.status}"></span>${statusLabel[f.status]||f.status.toUpperCase()}
           </div>
-          <span class="fcard-date">${dStr}</span>
+          <span class="fcard-date">#${f.id} · ${dStr}</span>
         </div>
         <div class="fcard-time">${f.timeFrom||'??:??'} – ${f.timeTo||'??:??'}</div>
-        <div class="fcard-pilot"><strong>${f.pilotName||'Onbekend'}</strong>${f.droneReg?' · '+f.droneReg:''}${f.droneType?' · '+f.droneType:''}</div>
+        <div class="fcard-pilot"><strong>${f.pilotName||'Unknown'}</strong>${f.droneReg?' · '+f.droneReg:''}${f.droneType?' · '+f.droneType:''}</div>
         <div class="fcard-body">
           <div class="fcard-mini">${miniGrid(f.cells)}</div>
           <div class="fcard-info">
@@ -662,17 +683,13 @@ waitForLeaflet(function() {
   document.getElementById('flight-list').addEventListener('click', async e => {
     const btn = e.target.closest('[data-action]');
     if (!btn) return;
-    const id     = Number(btn.dataset.id);
+    const id     = btn.dataset.id;   // string e.g. "01"
     const action = btn.dataset.action;
 
     if (action === 'clear' || action === 'deny') {
-      const all    = await dbGetAll();
-      const flight = all.find(f => f.id === id);
-      if (flight) {
-        flight.status = action === 'clear' ? 'cleared' : 'denied';
-        await dbPut(flight);
-        renderFlights();
-      }
+      const status = action === 'clear' ? 'cleared' : 'denied';
+      await dbPatchStatus(id, status);
+      renderFlights();
     } else if (action === 'edit') {
       const all    = await dbGetAll();
       const flight = all.find(f => f.id === id);
@@ -897,7 +914,18 @@ waitForLeaflet(function() {
   });
 
   // ── Init ─────────────────────────────────────────────
-  renderFlights();
+  // Check for ?id=XX in URL — auto-highlight that flight after load
+  const _urlId = new URLSearchParams(window.location.search).get('id');
+
+  renderFlights().then(() => {
+    if (!_urlId) return;
+    // Find the card and click it to highlight cells + mark active
+    const card = document.querySelector(`.fcard[data-id="${_urlId}"]`);
+    if (card) {
+      card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      card.click();
+    }
+  });
 
 }); // waitForLeaflet
 </script>
