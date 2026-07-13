@@ -2424,6 +2424,7 @@ window.toggleTz = function(){
       if (!res.ok){ err.textContent = data.error || 'Invalid code'; return; }
       localStorage.setItem('uas-token', data.token);
       localStorage.setItem('uas-role',  data.role);
+      if (data.role === 'atc') { window.location.href = '/atc'; return; }
       _hideLogin(data.role);
     } catch(e){ err.textContent = 'Server unreachable'; }
     finally { btn.textContent = 'Login →'; btn.disabled = false; }
