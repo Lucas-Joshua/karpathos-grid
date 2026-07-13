@@ -1,9 +1,10 @@
 'use strict';
-const express = require('express');
-const path    = require('path');
-const crypto  = require('crypto');
-const https   = require('https');
-const fs      = require('fs');
+const express   = require('express');
+const path      = require('path');
+const crypto    = require('crypto');
+const https     = require('https');
+const fs        = require('fs');
+const rateLimit = require('express-rate-limit');
 
 const app  = express();
 const PORT = process.env.PORT || 3000;
@@ -74,6 +75,33 @@ function verifyToken(token) {
 // ─── Middleware ───────────────────────────────────────────────────────────
 app.use(express.json());
 
+// ─── Rate limiting ────────────────────────────────────────────────────────
+// Auth: strict — 10 attempts per 15 min per IP (brute-force protection)
+const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 10,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: 'Too many login attempts — try again in 15 minutes' },
+});
+
+// General API: 120 requests per minute per IP
+const apiLimiter = rateLimit({
+  windowMs: 60 * 1000,
+  max: 120,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: 'Too many requests — please slow down' },
+});
+
+// Tile proxy: generous (map tiles fire many parallel requests)
+const tileLimiter = rateLimit({
+  windowMs: 60 * 1000,
+  max: 600,
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
 function requireAuth(...roles) {
   return (req, res, next) => {
     const raw  = (req.headers.authorization || '').replace(/^Bearer\s+/i, '');
@@ -88,7 +116,7 @@ function requireAuth(...roles) {
 // ─── Auth endpoints ───────────────────────────────────────────────────────
 
 // POST /api/auth  { code, role }
-app.post('/api/auth', (req, res) => {
+app.post('/api/auth', authLimiter, (req, res) => {
   const { code, role } = req.body || {};
   if (!code || !['pilot', 'atc'].includes(role)) {
     return res.status(400).json({ error: 'Missing code or role' });
@@ -109,7 +137,7 @@ app.post('/api/auth', (req, res) => {
 });
 
 // GET /api/verify
-app.get('/api/verify', (req, res) => {
+app.get('/api/verify', apiLimiter, (req, res) => {
   const raw  = (req.headers.authorization || '').replace(/^Bearer\s+/i, '');
   const user = verifyToken(raw);
   if (!user) return res.status(401).json({ error: 'Invalid token' });
@@ -117,7 +145,7 @@ app.get('/api/verify', (req, res) => {
 });
 
 // ─── Shared: last logins (pilot + ATC) ───────────────────────────────────
-app.get('/api/admin/last-logins', requireAuth('pilot', 'atc'), (_req, res) => {
+app.get('/api/admin/last-logins', apiLimiter, requireAuth('pilot', 'atc'), (_req, res) => {
   const fresh = loadDB();
   res.json({ lastLogins: fresh.lastLogins });
 });
@@ -125,13 +153,13 @@ app.get('/api/admin/last-logins', requireAuth('pilot', 'atc'), (_req, res) => {
 // ─── Admin endpoints (pilot only) ────────────────────────────────────────
 
 // GET /api/admin/codes
-app.get('/api/admin/codes', requireAuth('pilot'), (_req, res) => {
+app.get('/api/admin/codes', apiLimiter, requireAuth('pilot'), (_req, res) => {
   const fresh = loadDB();
   res.json({ codes: fresh.codes, lastLogins: fresh.lastLogins });
 });
 
 // POST /api/admin/codes  { code, role, label }
-app.post('/api/admin/codes', requireAuth('pilot'), (req, res) => {
+app.post('/api/admin/codes', apiLimiter, requireAuth('pilot'), (req, res) => {
   const { code, role, label = '' } = req.body || {};
   if (!code || !['pilot', 'atc'].includes(role)) {
     return res.status(400).json({ error: 'Missing code or role' });
@@ -150,7 +178,7 @@ app.post('/api/admin/codes', requireAuth('pilot'), (req, res) => {
 });
 
 // DELETE /api/admin/codes/:id
-app.delete('/api/admin/codes/:id', requireAuth('pilot'), (req, res) => {
+app.delete('/api/admin/codes/:id', apiLimiter, requireAuth('pilot'), (req, res) => {
   const id = parseInt(req.params.id);
   if (!id) return res.status(400).json({ error: 'Invalid id' });
 
@@ -203,7 +231,7 @@ function fetchOsmTile(z, x, y) {
   });
 }
 
-app.get('/tiles/:z/:x/:y.png', async (req, res) => {
+app.get('/tiles/:z/:x/:y.png', tileLimiter, async (req, res) => {
   const { z, x, y } = req.params;
   if (!/^\d{1,2}$/.test(z) || !/^\d+$/.test(x) || !/^\d+$/.test(y)) return res.status(400).send('Bad params');
   if (parseInt(z) > 19) return res.status(400).send('Zoom out of range');
@@ -231,13 +259,13 @@ app.get('/tiles/:z/:x/:y.png', async (req, res) => {
 // ─── Flight endpoints ─────────────────────────────────────────────────────
 
 // GET /api/flights — all flights (pilot + atc)
-app.get('/api/flights', requireAuth('pilot', 'atc'), (_req, res) => {
+app.get('/api/flights', apiLimiter, requireAuth('pilot', 'atc'), (_req, res) => {
   const fresh = loadDB();
   res.json({ flights: fresh.flights || [] });
 });
 
 // GET /api/flights/:id — single flight
-app.get('/api/flights/:id', requireAuth('pilot', 'atc'), (req, res) => {
+app.get('/api/flights/:id', apiLimiter, requireAuth('pilot', 'atc'), (req, res) => {
   const fresh = loadDB();
   const flight = (fresh.flights || []).find(f => f.id === req.params.id);
   if (!flight) return res.status(404).json({ error: 'Not found' });
@@ -245,7 +273,7 @@ app.get('/api/flights/:id', requireAuth('pilot', 'atc'), (req, res) => {
 });
 
 // POST /api/flights — create (pilot only), returns sequential ID like "01"
-app.post('/api/flights', requireAuth('pilot'), (req, res) => {
+app.post('/api/flights', apiLimiter, requireAuth('pilot'), (req, res) => {
   const fresh = loadDB();
   if (!fresh.flights)      fresh.flights      = [];
   if (!fresh.nextFlightId) fresh.nextFlightId = 1;
@@ -258,7 +286,7 @@ app.post('/api/flights', requireAuth('pilot'), (req, res) => {
 });
 
 // PUT /api/flights/:id — full update (pilot + atc can edit details)
-app.put('/api/flights/:id', requireAuth('pilot', 'atc'), (req, res) => {
+app.put('/api/flights/:id', apiLimiter, requireAuth('pilot', 'atc'), (req, res) => {
   const fresh = loadDB();
   if (!fresh.flights) return res.status(404).json({ error: 'Not found' });
   const idx = fresh.flights.findIndex(f => f.id === req.params.id);
@@ -270,7 +298,7 @@ app.put('/api/flights/:id', requireAuth('pilot', 'atc'), (req, res) => {
 });
 
 // PATCH /api/flights/:id/status — update status and/or afisNote (pilot + atc)
-app.patch('/api/flights/:id/status', requireAuth('pilot', 'atc'), (req, res) => {
+app.patch('/api/flights/:id/status', apiLimiter, requireAuth('pilot', 'atc'), (req, res) => {
   const fresh = loadDB();
   if (!fresh.flights) return res.status(404).json({ error: 'Not found' });
   const flight = fresh.flights.find(f => f.id === req.params.id);
@@ -282,7 +310,7 @@ app.patch('/api/flights/:id/status', requireAuth('pilot', 'atc'), (req, res) => 
 });
 
 // DELETE /api/flights/:id — pilot only
-app.delete('/api/flights/:id', requireAuth('pilot'), (req, res) => {
+app.delete('/api/flights/:id', apiLimiter, requireAuth('pilot'), (req, res) => {
   const fresh = loadDB();
   if (!fresh.flights) return res.status(404).json({ error: 'Not found' });
   const idx = fresh.flights.findIndex(f => f.id === req.params.id);

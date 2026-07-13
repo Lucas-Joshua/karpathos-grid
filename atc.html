@@ -250,7 +250,7 @@
       position: fixed; inset: 0; background: var(--bg); z-index: 99999;
       display: flex; align-items: center; justify-content: center;
     }
-    .ls-box { background: var(--panel); border: 1px solid var(--border); border-radius: 14px; padding: 36px 40px; width: 440px; max-width: 94vw; text-align: center; }
+    .ls-box { background: var(--panel); border: 1px solid var(--border); border-radius: 14px; padding: 36px 40px; width: 560px; max-width: 96vw; text-align: center; }
     .ls-logo  { font-size: 30px; margin-bottom: 10px; }
     .ls-title { font-size: 15px; font-weight: 700; color: var(--accent); margin-bottom: 4px; }
     .ls-sub   { font-size: 11px; color: var(--muted); margin-bottom: 22px; }
@@ -646,8 +646,8 @@ waitForLeaflet(function() {
         ? new Date(f.date+'T12:00:00').toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'2-digit'})
         : '—';
       const cellStr = f.cells.length <= 7
-        ? f.cells.join(', ')
-        : f.cells.slice(0,7).join(', ') + ` +${f.cells.length-7}`;
+        ? f.cells.map(escHtml).join(', ')
+        : f.cells.slice(0,7).map(escHtml).join(', ') + ` +${f.cells.length-7}`;
       const cellPreview = cellStr;
 
       card.innerHTML = `
@@ -655,10 +655,10 @@ waitForLeaflet(function() {
           <div class="fcard-status ${f.status}">
             <span class="status-dot ${f.status}"></span>${statusLabel[f.status]||f.status.toUpperCase()}
           </div>
-          <span class="fcard-date">#${f.id} · ${dStr}</span>
+          <span class="fcard-date">#${escHtml(f.id)} · ${dStr}</span>
         </div>
-        <div class="fcard-time">${f.timeFrom||'??:??'} – ${f.timeTo||'??:??'}</div>
-        <div class="fcard-pilot"><strong>${f.pilotName||'Unknown'}</strong>${f.droneReg?' · '+f.droneReg:''}${f.droneType?' · '+f.droneType:''}</div>
+        <div class="fcard-time">${escHtml(f.timeFrom||'??:??')} – ${escHtml(f.timeTo||'??:??')}</div>
+        <div class="fcard-pilot"><strong>${escHtml(f.pilotName||'Unknown')}</strong>${f.droneReg?' · '+escHtml(f.droneReg):''}${f.droneType?' · '+escHtml(f.droneType):''}</div>
         <div class="fcard-body">
           <div class="fcard-mini">${miniGrid(f.cells)}</div>
           <div class="fcard-info">
@@ -686,7 +686,7 @@ waitForLeaflet(function() {
   }
 
   function escHtml(s) {
-    return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+    const d = document.createElement('div'); d.textContent = String(s??''); return d.innerHTML;
   }
 
   // Action buttons (delegated)
@@ -881,9 +881,9 @@ waitForLeaflet(function() {
 
       let events = dayFlights.length
         ? dayFlights.map(f => {
-            const pilot = (f.pilotName||'—').split(' ')[0];
-            const time  = f.timeFrom ? `${f.timeFrom}${f.timeTo?'–'+f.timeTo:''}` : '';
-            return `<div class="cal-event ${f.status}" data-id="${f.id}" title="${f.pilotName||''} · ${f.cells.length} cells">
+            const pilot = escHtml((f.pilotName||'—').split(' ')[0]);
+            const time  = f.timeFrom ? `${escHtml(f.timeFrom)}${f.timeTo?'–'+escHtml(f.timeTo):''}` : '';
+            return `<div class="cal-event ${f.status}" data-id="${escHtml(f.id)}" title="${escHtml(f.pilotName||'')} · ${f.cells.length} cells">
               <div>${pilot}</div>
               ${time ? `<div class="cal-event-time">${time}</div>` : ''}
               <div class="cal-event-time">${f.cells.length} cell${f.cells.length!==1?'s':''}</div>
@@ -899,7 +899,7 @@ waitForLeaflet(function() {
     // Click on cal event → highlight on map + switch to list view
     grid.querySelectorAll('.cal-event').forEach(el => {
       el.addEventListener('click', async () => {
-        const id  = Number(el.dataset.id);
+        const id  = el.dataset.id;   // string e.g. "01" — do NOT convert to Number
         const all = await dbGetAll();
         const f   = all.find(x => x.id === id);
         if (!f) return;
@@ -973,6 +973,14 @@ waitForLeaflet(function() {
       <div class="ls-sec-row"><span>🔍</span><span><strong>Audited:</strong> Annual penetration tests and SOC 2 audits</span></div>
       <div style="margin-top:8px;font-size:10px;">
         <a href="https://trust.railway.com" target="_blank" style="color:var(--accent)">→ View Railway Trust Center (trust.railway.com)</a>
+      </div>
+
+      <div style="font-size:10px;font-weight:700;color:var(--dim);margin:10px 0 8px;letter-spacing:.05em;">CODE &amp; DEPLOYMENT</div>
+      <div class="ls-sec-row"><span>🔍</span><span><strong>CodeQL:</strong> Scans for security vulnerabilities and logic errors on every push (GitHub Advanced Security)</span></div>
+      <div class="ls-sec-row"><span>🧹</span><span><strong>Codacy static analysis:</strong> JShint (JavaScript), Remark-lint (Markdown) and Jacksonlinter (JSON) run on every commit</span></div>
+      <div class="ls-sec-row"><span>🚀</span><span><strong>Deployment:</strong> Code goes through all checks before deploying to Railway — no unreviewed changes go live</span></div>
+      <div style="margin-top:8px;font-size:10px;">
+        <a href="https://github.com/Lucas-Joshua/karpathos-grid" target="_blank" style="color:var(--dim)">→ View source code on GitHub</a>
       </div>
     </div>
   </div>

@@ -46,10 +46,16 @@ self.addEventListener('fetch', event => {
   if (req.method !== 'GET') return;
 
   // Tiles now served from same-origin /tiles/ proxy — match by path
+  // Use exact hostname matching (not .includes) to prevent subdomain spoofing
+  const OSM_HOSTS = new Set([
+    'a.tile.openstreetmap.org',
+    'b.tile.openstreetmap.org',
+    'c.tile.openstreetmap.org',
+  ]);
   const isTile =
     (url.origin === self.location.origin && url.pathname.startsWith('/tiles/')) ||
-    url.hostname.includes('tile.openstreetmap.org') ||
-    url.hostname.includes('arcgisonline.com');
+    OSM_HOSTS.has(url.hostname) ||
+    url.hostname === 'server.arcgisonline.com';
 
   const isCDN = url.hostname === 'cdnjs.cloudflare.com';
 

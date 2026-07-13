@@ -109,7 +109,35 @@ Server (server.js / Express — pure Node.js, no native dependencies)
   └── data/db.json  → JSON file (codes + last_logins)
 ```
 
-Tokens are **HMAC-SHA256 signed**, stored in `localStorage`, valid for 7 days. Revoking a code immediately invalidates all tokens issued with that code (checked on every request).
+---
+
+## Security
+
+### Authentication
+
+Tokens are **HMAC-SHA256 signed**, stored in `localStorage`, valid for 7 days. Revoking a code immediately invalidates all tokens issued with that code (checked on every request by reloading `db.json`).
+
+On page load, the token is **verified with the server** before the app is shown. If the server is unreachable or the token is invalid/expired, the token is cleared and the login screen stays visible. Network failures never grant access.
+
+### Preventing flash of app content
+
+Both `index.html` and `atc.html` set `body { visibility: hidden }` in CSS by default. The login overlay explicitly overrides this with `#loginScreen { visibility: visible }`. When the server confirms a valid token, JavaScript sets `document.body.style.visibility = 'visible'` to reveal the app. This means the app content is **never visible** — even for a single frame — until authentication is confirmed, regardless of z-index or rendering order.
+
+### XSS protection
+
+All user-supplied data (pilot name, notes, AFIS note, drone type/reg, cell IDs) is HTML-escaped before being inserted into `innerHTML` template literals. Both files use a DOM-based `esc()`/`escHtml()` helper (`element.textContent = s; return element.innerHTML`) which is immune to regex bypass.
+
+### Code scanning
+
+A GitHub Actions workflow (`.github/workflows/codeql.yml`) runs **CodeQL security analysis** on every push to `main`/`master` and weekly on a schedule. It uses the `security-extended` and `security-and-quality` query suites, which cover OWASP Top 10 and additional quality checks.
+
+### Infrastructure
+
+Server runs on [Railway](https://railway.com/) — EU West Amsterdam (Google Cloud). SOC 2 Type 2 · SOC 3 · GDPR · HIPAA. See [trust.railway.com](https://trust.railway.com) for details.
+
+### Analytics
+
+[GoatCounter](https://www.goatcounter.com/) — anonymous page views only. No cookies, no personal data, no consent banner required.
 
 ---
 

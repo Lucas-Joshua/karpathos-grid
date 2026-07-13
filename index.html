@@ -440,7 +440,7 @@
     }
     .ls-box {
       background: var(--bg2); border: 1px solid var(--border);
-      border-radius: 14px; padding: 36px 40px; width: 440px; max-width: 94vw;
+      border-radius: 14px; padding: 36px 40px; width: 560px; max-width: 96vw;
       text-align: center;
     }
     .ls-logo  { font-size: 30px; margin-bottom: 10px; }
@@ -1376,19 +1376,26 @@ async function renderPresets(){
         list.innerHTML='<span class="hint">No presets saved yet</span>';
         return;
       }
+      const escP = window.esc || (s => String(s??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'));
       list.innerHTML=presets.map(({name,cells})=>{
-        const safe=name.replace(/'/g,"\\'");
         return `<div class="preset-item">
           <div class="preset-info">
-            <span class="preset-name">${name}</span>
-            <span class="preset-cells">${(cells||[]).join(', ')}</span>
+            <span class="preset-name">${escP(name)}</span>
+            <span class="preset-cells">${(cells||[]).map(escP).join(', ')}</span>
           </div>
           <div class="preset-actions">
-            <button class="p-btn" onclick="loadPreset('${safe}')">Load</button>
-            <button class="p-btn del" onclick="deletePreset('${safe}')">Del</button>
+            <button class="p-btn" data-preset-name="${escP(name)}">Load</button>
+            <button class="p-btn del" data-preset-del="${escP(name)}">Del</button>
           </div>
         </div>`;
       }).join('');
+      // Attach handlers via data attributes — never inject user data into onclick
+      list.querySelectorAll('[data-preset-name]').forEach(btn => {
+        btn.addEventListener('click', () => loadPreset(btn.dataset.presetName));
+      });
+      list.querySelectorAll('[data-preset-del]').forEach(btn => {
+        btn.addEventListener('click', () => deletePreset(btn.dataset.presetDel));
+      });
     };
   } catch(err){
     console.warn('IndexedDB unavailable:',err);
@@ -2069,6 +2076,14 @@ updateOnlineStatus();
       <div style="margin-top:8px;font-size:10px;">
         <a href="https://trust.railway.com" target="_blank" style="color:var(--accent)">→ View Railway Trust Center (trust.railway.com)</a>
       </div>
+
+      <div style="font-size:10px;font-weight:700;color:var(--dim);margin:10px 0 8px;letter-spacing:.05em;">CODE &amp; DEPLOYMENT</div>
+      <div class="ls-sec-row"><span>🔍</span><span><strong>CodeQL:</strong> Scans for security vulnerabilities and logic errors on every push (GitHub Advanced Security)</span></div>
+      <div class="ls-sec-row"><span>🧹</span><span><strong>Codacy static analysis:</strong> JShint (JavaScript), Remark-lint (Markdown) and Jacksonlinter (JSON) run on every commit</span></div>
+      <div class="ls-sec-row"><span>🚀</span><span><strong>Deployment:</strong> Code goes through all checks before deploying to Railway — no unreviewed changes go live</span></div>
+      <div style="margin-top:8px;font-size:10px;">
+        <a href="https://github.com/Lucas-Joshua/karpathos-grid" target="_blank" style="color:var(--dim)">→ View source code on GitHub</a>
+      </div>
     </div>
   </div>
 </div>
@@ -2137,6 +2152,9 @@ updateOnlineStatus();
   window.stepHour = function(d){ _ph=(_ph+d+24)%24; renderPicker(); };
   window.stepMin  = function(d){ _pm=(_pm+d+60)%60; renderPicker(); };
 })();
+
+// ── HTML escape helper — prevents XSS in innerHTML template literals ─────────
+window.esc = function(s){ const d=document.createElement('div'); d.textContent=String(s??''); return d.innerHTML; };
 
 // ── Timezone toggle (default: EEST = UTC+3) ───────────────────────────────
 window._tzOffset = 3; // hours ahead of UTC
@@ -2366,16 +2384,17 @@ window.toggleTz = function(){
         const _tzLabel = _tz ? `EEST (UTC+${_tz})` : 'UTC';
         const _dFrom = window.shiftTime ? window.shiftTime(selFlight.timeFrom, _tz) : selFlight.timeFrom;
         const _dTo   = window.shiftTime ? window.shiftTime(selFlight.timeTo,   _tz) : selFlight.timeTo;
+        const e = window.esc || (s => String(s??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'));
         det.innerHTML = `<div class="mf-detail-row">
-          <span><strong>${selFlight.date||'?'}</strong></span>
-          <span>${_dFrom||'?'} – ${_dTo||'?'} ${_tzLabel}</span>
-          <span style="color:${statusColor};font-weight:700">${selFlight.status.toUpperCase()}</span>
+          <span><strong>${e(selFlight.date)||'?'}</strong></span>
+          <span>${e(_dFrom)||'?'} – ${e(_dTo)||'?'} ${_tzLabel}</span>
+          <span style="color:${statusColor};font-weight:700">${e(selFlight.status).toUpperCase()}</span>
         </div>
         <div class="mf-detail-row" style="margin-top:6px;">
-          <span><strong>Cells:</strong> ${selFlight.cells.join(', ')}</span>
+          <span><strong>Cells:</strong> ${selFlight.cells.map(e).join(', ')}</span>
         </div>
-        ${selFlight.notes ? `<div class="mf-detail-row" style="margin-top:4px;"><span>${selFlight.notes}</span></div>` : ''}
-        ${selFlight.afisNote ? `<div class="mf-detail-row" style="margin-top:4px;color:var(--accent);"><span>✈ AFIS: ${selFlight.afisNote}</span></div>` : ''}
+        ${selFlight.notes ? `<div class="mf-detail-row" style="margin-top:4px;"><span>${e(selFlight.notes)}</span></div>` : ''}
+        ${selFlight.afisNote ? `<div class="mf-detail-row" style="margin-top:4px;color:var(--accent);"><span>✈ AFIS: ${e(selFlight.afisNote)}</span></div>` : ''}
         ${localStorage.getItem('uas-role') === 'pilot' ? `<div class="mf-detail-actions">
           <button class="mf-btn-edit"   onclick="mfEditFlight('${selFlight.id}')">✏ Load into form</button>
           <button class="mf-btn-delete" onclick="mfDeleteFlight('${selFlight.id}')">🗑 Delete</button>
