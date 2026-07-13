@@ -658,6 +658,8 @@
       <strong>AFIS Karpathos</strong><br>
       +30 22450 91120 &nbsp;·&nbsp; +30 22450 91047
     </div>
+    <span id="pilotClock" style="font-size:11px;color:var(--muted);font-variant-numeric:tabular-nums;white-space:nowrap;"></span>
+
     <a href="atc.html" class="atc-link-btn">✈ ATC View →</a>
 
     <!-- Auth badge + admin + logout (hidden until logged in) -->
@@ -1650,7 +1652,7 @@ async function scheduleToATC(){
     const dt=new Date(d); const day=dt.getDay();
     const diff=(day===0?-6:1-day); dt.setDate(dt.getDate()+diff); dt.setHours(0,0,0,0); return dt;
   }
-  function isoDate(d){ return d.toISOString().slice(0,10); }
+  function isoDate(d){ return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); }
   function dbGetAll(){
     return new Promise((res,rej)=>{
       const r=indexedDB.open('atc-grid-db',1);
@@ -2112,6 +2114,22 @@ updateOnlineStatus();
 // ── Timezone toggle (default: EEST = UTC+3) ───────────────────────────────
 window._tzOffset = 3; // hours ahead of UTC
 
+// ── Pilot view clock — always Karpathos time (EEST) ──────────────────────
+(function(){
+  const el = document.getElementById('pilotClock');
+  if (!el) return;
+  const TZ = 'Europe/Athens';
+  function tick(){
+    const n = new Date();
+    el.textContent =
+      n.toLocaleDateString('en-GB',  { timeZone:TZ, weekday:'short', day:'numeric', month:'short' }) +
+      ' — ' +
+      n.toLocaleTimeString('en-GB',  { timeZone:TZ, hour:'2-digit', minute:'2-digit', second:'2-digit' }) +
+      ' EEST';
+  }
+  tick(); setInterval(tick, 1000);
+})();
+
 window.shiftTime = function(hhmm, hours){
   if (!hhmm || !hhmm.includes(':')) return hhmm;
   const [h, m] = hhmm.split(':').map(Number);
@@ -2239,7 +2257,7 @@ window.toggleTz = function(){
     dt.setDate(dt.getDate() + (day===0 ? -6 : 1-day));
     dt.setHours(0,0,0,0); return dt;
   }
-  function isoDate(d){ return d.toISOString().slice(0,10); }
+  function isoDate(d){ return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); }
   async function dbGetAll(){
     try {
       const token = localStorage.getItem('uas-token') || '';

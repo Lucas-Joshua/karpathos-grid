@@ -421,14 +421,17 @@ function waitForLeaflet(cb) {
 
 waitForLeaflet(function() {
 
-  // ── Live clock ──────────────────────────────────────
+  // ── Live clock — always shows Karpathos time (EEST = UTC+3) ────────────
   const clockEl = document.getElementById('hdr-clock');
+  const KARPATHOS_TZ = 'Europe/Athens'; // EEST UTC+3 in summer
   function tick() {
     const n = new Date();
+    const opts = { timeZone: KARPATHOS_TZ };
     clockEl.textContent =
-      n.toLocaleDateString('en-GB',{weekday:'short',day:'numeric',month:'short',year:'numeric'}) +
+      n.toLocaleDateString('en-GB', { ...opts, weekday:'short', day:'numeric', month:'short', year:'numeric' }) +
       ' — ' +
-      n.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit',second:'2-digit'}) + ' LT';
+      n.toLocaleTimeString('en-GB', { ...opts, hour:'2-digit', minute:'2-digit', second:'2-digit' }) +
+      ' EEST';
   }
   tick(); setInterval(tick, 1000);
 
@@ -826,7 +829,7 @@ waitForLeaflet(function() {
   }
 
   function isoDate(d) {
-    return d.toISOString().slice(0, 10);
+    return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
   }
 
   const DAY_NAMES = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
